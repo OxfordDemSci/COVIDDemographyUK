@@ -1,0 +1,10 @@
+.Rhistory
+.Rproj*
+e0simulation/
+*Rproj
+full_pop_sim/
+POPsimulation/
+references/
+regdata/
+sim*/
+TFRsimulation/
