@@ -1,5 +1,0 @@
-"Comparison of OTHER output file for MAR19 with OTHER output file for JUN19."
-
-
-OLD START,OLD NAME,OLD FORMAT,NOTES,NEW START,NEW NAME,NEW FORMAT
-There are no differences between the two layouts.
