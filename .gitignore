@@ -3,4 +3,5 @@
 *Rproj
 references/
 .Rproj.user
-data/
+data/regdata/
+data/*sim*

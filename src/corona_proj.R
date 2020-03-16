@@ -10,6 +10,7 @@ library(stringr)
 library(forcats)
 library(bayesPop)
 library(readxl)
+library(readr)
 
 # These are the converged simulations provided by Hana Ševčíková
 tfr.dir <- 'data/sim20190525'
@@ -132,6 +133,8 @@ total_pop <- group_by(medians_2020, country) %>%
 
 medians_2020 <- left_join(medians_2020, total_pop) %>%
   mutate(dead_prop = dead/total_pop)
+
+write_csv(medians_2020, 'data/corona_pop_proj.csv')
 
 p1 <- filter(medians_2020, country %in% c('Italy', 'United Kingdom', 'United States of America', 'Brazil', 'Nigeria')) %>%
   mutate(country = factor(country, levels = c('Italy', 'United Kingdom', 'United States of America', 'Brazil', 'Nigeria'))) %>%
