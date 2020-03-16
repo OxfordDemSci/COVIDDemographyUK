@@ -4,7 +4,7 @@ library(cowplot)
 library(bayesTFR)
 
 # Read in the converged simulation
-tfr.pred.converged <- get.tfr.prediction('sim20190525/')
+tfr.pred.converged <- get.tfr.prediction('data/sim20190525/')
 
 # Make the DL curve plots
 DLcurve.plot(tfr.pred.converged, country = 'Ghana')

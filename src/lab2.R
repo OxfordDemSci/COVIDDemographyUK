@@ -1,7 +1,7 @@
 library(bayesLife)
 
 # Read the converged MCMC run from disk
-e0.converged.pred <- get.e0.prediction('sim20190528/')
+e0.converged.pred <- get.e0.prediction('data/sim20190528/')
 
 # Define the countries we're looking at
 cntry <- 'Uzbekistan'

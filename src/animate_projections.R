@@ -10,10 +10,10 @@ library(forcats)
 library(bayesPop)
 
 # These are the converged simulations provided by Hana Ševčíková
-tfr.dir <- 'sim20190525'
-e0.dir <- 'sim20190528'
+tfr.dir <- 'data/sim20190525'
+e0.dir <- 'data/sim20190528'
 
-pop.dir <- 'full_pop_sim'
+pop.dir <- 'data/full_pop_sim'
 
 # To generate the total population trajectories:
 # pop.pred <- pop.predict(
@@ -114,7 +114,7 @@ write_animation <- function(countries, df) {
   
   anim <- make_animation(df)
   
-  fname <- paste0('pop_pyramid_', first, '_to_', last, '.gif')
+  fname <- paste0('figs/pop_pyramid_', first, '_to_', last, '.gif')
   anim_save(fname, anim)
 }
 
