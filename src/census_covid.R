@@ -1,10 +1,10 @@
 rm(list = ls())
-setwd("/Users/markverhagen/Dropbox/Academic Work/Cooperative work/coronavirus/ComoWorkshopBayesianDemography/")
-
 ## Script for Covid-19 geographical risk analysis
 ## Author: Mark Verhagen (LCDS)
 ## Created: 16-03-2020
 ## Code Review:
+
+setwd("")
 
 # Load packages
 packages <- c("tidyverse", "tidycensus", "magrittr", "readxl", "sp", "gpclib", "maptools", "spdep",
