@@ -15,3 +15,5 @@ In data, corono_pop_proj has:
     -dead / total_pop
 
 italy-13march.xlsx is the CFR data from Liliana
+
+JHU_03-15-2020 has the Johns Hopkins summary data from March 15th. See: https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data
