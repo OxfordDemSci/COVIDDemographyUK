@@ -13,7 +13,9 @@ lapply(packages, require, character.only = TRUE)
 source("src/functions.r")
 
 # Load Data
-uk <- read.csv("data/census UK/UK_2018_all.csv") %>%
+#saveRDS(read.csv("data/census UK/UK_2018_all.csv"), "data/census UK/UK_2018_all.rds")
+
+uk <- readRDS("data/census UK/UK_2018_all.rds") %>%
   filter(LA..2019.boundaries. == "")  # Drops the county aggregated numbers
 names(uk) <- gsub("X|\\.", "", names(uk))  # change column names of the form X\\d{1} to just the digit
 
