@@ -115,7 +115,7 @@ medians_2020 <- filter(medians, year == 2020) %>%
   summarize(pop = sum(abs(pop)))
 
 # Read in Liliana's age-specific CFRs (from Italian data)
-italy_rates <- read_excel('data/italy-13march.xlsx') %>%
+italy_rates <- read_excel('data/italy-16march.xlsx') %>%
   select(age, lethality_rate) %>%
   mutate(age = as_factor(age))
 

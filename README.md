@@ -14,6 +14,12 @@ In data, corono_pop_proj has:
 - dead_prop
     - dead / total_pop
 
-italy-13march.xlsx is the CFR data from Liliana
+italy-13march.xlsx and italy-16march.xlsx are the CFR data from Liliana
 
 JHU_03-15-2020 has the Johns Hopkins summary data from March 15th. See: https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data
+
+medicare_providers/ has Medicare/Medicaid approved facilities data for the US
+
+DartmouthAtlas/ has hospital capacity data from 2012 for the US:
+	 - hsa_bdry.zip has the shapefiles for Hospital Service Areas "Each HSA consists of a group of cities and towns that include one or more hospitals to which local residents have the plurality of their inpatient admissions." These are pretty local areas, multiple within major cities.
+	- 2012_hosp_resource_hsa.xls (https://atlasdata.dartmouth.edu/static/general_atlas_rates#resources) has hospital resource data (beds and nurses per 1,000 residents)
