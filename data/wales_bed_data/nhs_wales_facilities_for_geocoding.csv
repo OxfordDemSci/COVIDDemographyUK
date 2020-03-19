@@ -1,0 +1,111 @@
+local_health_board,facility,beds,post_code,lat,long
+Betsi Cadwaladr University Health Board (1),Ysbyty Glan Clwyd,450.875,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Abergele Hospital,36,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Wrexham Maelor Hospital,610.616667,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Chirk Community Hospital,30.966667,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Colwyn Bay Community Hospital,44.991667,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Denbigh Community Hospital,24.408333,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Holywell Community Hospital,44.258333,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Mold Community Hospital,39.891667,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Ruthin Community Hospital,26.641667,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Ysbyty Gwynedd,463.016666,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Llandudno General Hospital,74.15,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Bryn Beryl Hospital,24.283333,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Dolgellau And Barmouth District Hospital,20.016667,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Tywyn & District War Memorial Hospital,10.666667,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Ysbyty Alltwen,20.866667,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Deeside Community Hospital,44.075,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Penley Hospital,5.308333,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Ysbyty Penrhos Stanley,33.341667,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Cefni Hospital,13.308333,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Eryri Hospital,33.75,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Ablett Unit,41.816667,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Tan-y-Castell,8,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Ysbyty Gwynedd (psychiatric),40.058333,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),Bryn-y-Neuadd Hospital,58.7525,NA,NA,NA
+Betsi Cadwaladr University Health Board (1),North Wales Cancer Treatment Centre,20.65,NA,NA,NA
+Powys Teaching Health Board (1),Llandrindod Wells Hospital,33,NA,NA,NA
+Powys Teaching Health Board (1),Llanidloes And District War Memorial Hospital,10.083333,NA,NA,NA
+Powys Teaching Health Board (1),Bro Ddyfi Community Hospital,14,NA,NA,NA
+Powys Teaching Health Board (1),Montgomeryshire County Infirmary,16.083333,NA,NA,NA
+Powys Teaching Health Board (1),Victoria Memorial Hospital,22.833333,NA,NA,NA
+Powys Teaching Health Board (1),Breconshire War Memorial Hospital,42.75,NA,NA,NA
+Powys Teaching Health Board (1),Knighton Hospital,12.25,NA,NA,NA
+Powys Teaching Health Board (1),Bronllys Hospital,35.166667,NA,NA,NA
+Powys Teaching Health Board (1),Ystradgynlais Community Hospital,27.916667,NA,NA,NA
+Hywel Dda University Health Board,Glangwili General Hospital,382.249998,NA,NA,NA
+Hywel Dda University Health Board,Llandovery Hospital,16,NA,NA,NA
+Hywel Dda University Health Board,Bronglais General Hospital,160.833333,NA,NA,NA
+Hywel Dda University Health Board,Prince Philip Hospital,212.583335,NA,NA,NA
+Hywel Dda University Health Board,Withybush General Hospital,229.735835,NA,NA,NA
+Hywel Dda University Health Board,Tregaron Hospital,12,NA,NA,NA
+Hywel Dda University Health Board,Amman Valley Hospital,28,NA,NA,NA
+Hywel Dda University Health Board,S. Pembs Hosp. Health & Social Care Res Centre,35,NA,NA,NA
+Hywel Dda University Health Board,Haverfordwest Mental Health Unit,30,NA,NA,NA
+Hywel Dda University Health Board,Hafen Derwen (St Davids Hospital),35.608333,NA,NA,NA
+Hywel Dda University Health Board,Carmarthen Mental Health Unit,10,NA,NA,NA
+Hywel Dda University Health Board,Aberystwyth Mental Health Unit,7,NA,NA,NA
+Hywel Dda University Health Board,Caebryn Mental Health Unit,33,NA,NA,NA
+Hywel Dda University Health Board,Ty Bryngwyn Mawr,6,NA,NA,NA
+Hywel Dda University Health Board,Hywel Dda Activity not at a hospital site,10,NA,NA,NA
+Aneurin Bevan University Health Board,Nevill Hall Hospital,381.624166,NA,NA,NA
+Aneurin Bevan University Health Board,Royal Gwent Hospital,724.065831,NA,NA,NA
+Aneurin Bevan University Health Board,County Hospital,89.5525,NA,NA,NA
+Aneurin Bevan University Health Board,St Woolos Community,87.936666,NA,NA,NA
+Aneurin Bevan University Health Board,Ysbyty Aneurin Bevan,93.449167,NA,NA,NA
+Aneurin Bevan University Health Board,Ysbyty Ystrad Fawr,199.684166,NA,NA,NA
+Aneurin Bevan University Health Board,Monnow Vale Health & Social Care Facility,19,NA,NA,NA
+Aneurin Bevan University Health Board,Chepstow Community Hospital,32.679167,NA,NA,NA
+Aneurin Bevan University Health Board,St Cadoc's Hospital,52.008333,NA,NA,NA
+Aneurin Bevan University Health Board,Maindiff Court Hospital,15,NA,NA,NA
+Aneurin Bevan University Health Board,Ysbyty Tri Chwm,14.833333,NA,NA,NA
+Aneurin Bevan University Health Board,Bridge View House LD House,1.975833,NA,NA,NA
+Aneurin Bevan University Health Board,Homelands L.D House,2.075,NA,NA,NA
+Aneurin Bevan University Health Board,Twyn Glas (L.D.),3.626667,NA,NA,NA
+Aneurin Bevan University Health Board,Llanfrechfa Grange Hospital,5.533333,NA,NA,NA
+Aneurin Bevan University Health Board,Lamb House (L.D.),5,NA,NA,NA
+Aneurin Bevan University Health Board,Mitchell Close,2.870833,NA,NA,NA
+Aneurin Bevan University Health Board,St Woolos other,31.086667,NA,NA,NA
+Aneurin Bevan University Health Board,Gwent activity outside the Trust,0.15,NA,NA,NA
+Aneurin Bevan University Health Board,Rhymney Integrated Health and Social Care Centre,10.990833,NA,NA,NA
+Cardiff and Vale University Health Board,University Hospital Of Wales,941.3275,NA,NA,NA
+Cardiff and Vale University Health Board,Rookwood Hospital,47.994167,NA,NA,NA
+Cardiff and Vale University Health Board,University Hospital Llandough,399.11167,NA,NA,NA
+Cardiff and Vale University Health Board,The Barry Hospital,22.9975,NA,NA,NA
+Cardiff and Vale University Health Board,St Davids Community Hospital,53.5975,NA,NA,NA
+Cardiff and Vale University Health Board,Whitchurch Hospital,13.944167,NA,NA,NA
+Cardiff and Vale University Health Board,Mental Health at Llandough Hospital,244.001667,NA,NA,NA
+Cardiff and Vale University Health Board,Mental Health at Barry Hospital,16,NA,NA,NA
+Cardiff and Vale University Health Board,Wordsworth Mental Health Rehabilitation Unit,8,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Abertawe Bro Morgannwg University Health Board,2150.108331,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Singleton Hospital,345.833334,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Meadow Court (Learning Disabilities),5,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Llwyneryr Hospital,13,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Hafod y Wennol (Hensol Hospital),8,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Tonna Hospital,44.333333,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Cefn Coed Hospital,119,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Gorseinon Hospital,36.166666,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Neath Port Talbot Hospital,191.558332,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Morriston Hospital,725.149999,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Ty Garth Newydd (Learning Disabilites),5,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Swn y Nant (Learning Disabilities),5,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Brynafon Learning Disabilities Unit,4.583333,NA,NA,NA
+Abertawe Bro Morgannwg University Health Board,Ely Houses,24.333333,NA,NA,NA
+Cwm Taf University Health Board,Princess Of Wales Hospital,397.833332,NA,NA,NA
+Cwm Taf University Health Board,Glanrhyd Hospital,33.091667,NA,NA,NA
+Cwm Taf University Health Board,Dan y Bont (Learning Disabilites),5,NA,NA,NA
+Cwm Taf University Health Board,"Caswell Clinic , South Wales Forensic&psychiatric",61.025,NA,NA,NA
+Cwm Taf University Health Board,Maesteg General Hospital,19.891667,NA,NA,NA
+Cwm Taf University Health Board,Cefn Yr Afon,18,NA,NA,NA
+Cwm Taf University Health Board,Taith Newydd (Mental Illness),28,NA,NA,NA
+Cwm Taf University Health Board,Ty Llidiard,16,NA,NA,NA
+Cwm Taf University Health Board,Coity Clinic,60.308333,NA,NA,NA
+Cwm Taf University Health Board,Ysbyty George Thomas,14.669167,NA,NA,NA
+Cwm Taf University Health Board,Ysbyty Cwm Cynon,125.058334,NA,NA,NA
+Cwm Taf University Health Board,Mental Health Services at Royal Glamorgan,74.858333,NA,NA,NA
+Cwm Taf University Health Board,Ysbyty Cwm Rhondda,111.004167,NA,NA,NA
+Cwm Taf University Health Board,Pontypridd & District Hospital,5.919167,NA,NA,NA
+Cwm Taf University Health Board,Prince Charles Hospital,388.083334,NA,NA,NA
+Cwm Taf University Health Board,The Royal Glamorgan Hospital,459.196667,NA,NA,NA
+Cwm Taf University Health Board,Pinewood House,15.8975,NA,NA,NA
+Velindre NHS Trust,Velindre Cancer Centre (Velindre Hospital),40,NA,NA,NA
