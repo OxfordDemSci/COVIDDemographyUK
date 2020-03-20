@@ -54,7 +54,6 @@ lsoa_df <- agg_uk_h %>%
 region_df_0025 <- regional_agg(agg_uk_h_0025, uk, cw_lda_region, hospital_region)
 ccounty_df_0025 <- county_agg(agg_uk_h_0025, uk, cw_lsoa_ccounty, hospital_ccounty)
 
-
 # Address that there are only 7 NHS regions, whereas there are 9 administrative regions. Decompose capacity by pop
 dup1 <- c("E12000004", "E12000005")
 dup2 <- c("E12000001", "E12000003")
@@ -73,6 +72,26 @@ region_df_0025 <- region_df_0025 %>%
 # write_csv(region_df %>%
 #   merge.data.frame(cw_lda_region[!duplicated(cw_lda_region$RGN19NM), ]) %>%
 #   select(-LAD19CD, -LAD19NM), "data/hospital beds/region_capacity.csv")
+
+
+## ---- Generate a set of data for some London zoom-ins ---- ##
+London_codes <- lsoa_shape$LSOA11CD[grepl("London", lsoa_shape$NAME)]
+London_df <- agg_uk_h[agg_uk_h$AreaCodes %in% London_codes, ] %>%
+  mutate(hosp_rate = hospitalization / value)
+London_df <- London_df[order(London_df$hosp_rate, decreasing = T), ]
+
+# plot differences in age structure between two selected LSOA's
+London_specific <- readRDS("data/census UK/UK_2018_wide.rds") %>%
+  filter(AreaCodes %in% c("E01033583", "E01002225"))
+London_specific[, 4:22] <- London_specific[, 4:22] / rowSums(London_specific[, 4:22])
+ggplot(London_specific %>% select(-AllAges) %>% melt(id.vars = c("AreaCodes", "LSOA"))) +
+  geom_bar(aes(x = variable, y = value, fill=LSOA), stat = "identity", position = "dodge") +
+  theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+  labs(title = "Age structure of Harrow (001C) and Newham (013G)", x="Proportion of population", y="Age")
+
+# E01033583 
+# E01002901
+
 
 # Merge to shapefiles and generate per capita measures
 agg_region_shape <- sp::merge(region_df, region_shape, by.x="geo_code", by.y="rgn17cd") %>%
