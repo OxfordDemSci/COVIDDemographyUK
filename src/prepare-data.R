@@ -9,6 +9,11 @@ packages <- c("tidyverse", "tidycensus", "magrittr", "readxl", "sp", "gpclib", "
               "maptools", "RColorBrewer", "lattice", "gridExtra", "sf", "reshape2", "spData", "rgeos")
 lapply(packages, require, character.only = TRUE)
 
+library(tidyverse)
+library(sf)
+library(rmapshaper)
+library(maptools)
+
 ## --- Functions --- ##
 create_map_stats <- function(df) {
   return(df %>%
@@ -34,17 +39,7 @@ cw_lsoa_ccounty <- read.csv("data/geo_crosswalks/CW_LSOA_CCounty.csv") %>%
 region_df <- readRDS("data/for graphs/region_data.rds")
 ccounty_df <- readRDS("data/for graphs/ccounty_data.rds")
 lsoa_df <- readRDS("data/for graphs/lsoa_data.rds")
-wales_df <- readRDS("data/for graphs/wales_outline_beds.rds")
-wales_df$Id <- "Wales"
-wales_df <- st_as_sf(unionSpatialPolygons(as(wales_df, 'Spatial'), wales_df$Id)) %>%
-  mutate(general_cap = 10465,
-         acute_cap = 153,
-         population = 3138631,
-         fatalities = 7939,
-         hospitalizations = 26242,
-         hospitalizations_acute = 8758,
-         RGN19CD = "Wales",
-         geo_code = "Wales")
+
 
 # read shapefiles
 region_shape <- sf::st_read("shapefiles/UK/Regions/Regions_December_2017_Generalised_Clipped_Boundaries_in_England.shp")
@@ -55,16 +50,40 @@ ccounty_shape <- sf::st_read("shapefiles/UK/CCounties/Boundary-line-ceremonial-c
 lsoa_shape <- sf::st_read("shapefiles/UK/Lower_Layer_Super_Output_Areas_December_2011_Boundaries_EW_BFC.shp") %>%
   merge.data.frame(cw_lsoa_ccounty[, c("LSOA11CD", "NAME")], by="LSOA11CD")  # Not necessary yet
 
+lsoa_shape <- sf::st_read("~/Downloads/LSOA_shape/Lower_Layer_Super_Output_Areas_December_2011_Boundaries_EW_BFC.shp") %>%
+  merge.data.frame(cw_lsoa_ccounty[, c("LSOA11CD", "NAME")], by="LSOA11CD")  # Not necessary yet
+
 ## --- Creating sf's --- ##
-
-# Regional SF
-agg_region_shape <- sp::merge(region_df, region_shape, by.x="geo_code", by.y="rgn17cd") %>%
-  create_map_stats() 
-
 
 # County SF
 agg_ccounty_shape <- sp::merge(ccounty_df, ccounty_shape, by.x="CCTY19NM", by.y="NAME", all.x=T) %>%
   create_map_stats()
+
+# Wales at region level
+wales_df <- agg_ccounty_shape %>% 
+  filter(CCTY19NM %in% c("POWYS","GWENT","GLAMORGAN","DYFED","GWYNEDD","CLWYD")) %>% 
+  st_as_sf %>% 
+  ms_dissolve() %>% 
+  transmute(
+    # beds = 10563.7,
+    # intensive_care_beds  = 153.2,
+    general_cap = 10465,
+    acute_cap = 153,
+    pop = 3138631,
+    fatalities = 7939,
+    hospitalizations = 26242,
+    hospitalizations_acute = 8758,
+    RGN19CD = "Wales",
+    geo_code = "Wales",
+    geometry
+  )
+
+# Regional SF
+agg_region_shape <- sp::merge(region_df, region_shape, by.x="geo_code", by.y="rgn17cd") %>%
+  dplyr::select(names(wales_df)) %>% 
+  st_as_sf() %>% 
+  rbind(wales_df %>% st_transform(crs = 27700)) %>% # unify projections
+  create_map_stats() 
 
 # LSOA SF
 agg_lsoa_shape <- sp::merge(lsoa_df, lsoa_shape, by.x="AreaCodes", by.y="LSOA11CD", all.x=T) %>%
@@ -78,7 +97,6 @@ agg_lsoa_shape <- sp::merge(lsoa_df, lsoa_shape, by.x="AreaCodes", by.y="LSOA11C
 library(rmapshaper)
 
 agg_region_s <- agg_region_shape %>% 
-  st_as_sf() %>% 
   ms_simplify(keep = .01)
 
 # create borders layer as lines
@@ -93,12 +111,50 @@ agg_ccounty_s <- agg_ccounty_shape %>%
 agg_ccounty_b <- agg_ccounty_s %>% 
   ms_innerlines()
 
-agg_lsoa_s <- agg_lsoa_shape %>% 
+agg_ccounty_b_5 <- agg_ccounty_s %>% 
+  filter(
+    CCTY19NM %in% toupper(c("Powys","Gwent","Glamorgan","Dyfed","Gwynedd","Clwyd"))
+  ) %>% 
+  ms_innerlines()
+
+
+# subset for specific figures
+agg_lsoa_s_5 <- agg_lsoa_shape %>% 
+  filter(
+    NAME %in% c("Powys","Gwent","Glamorgan","Dyfed","Gwynedd","Clwyd")
+  ) %>% 
   st_as_sf() %>% 
   ms_simplify(keep = .01)
 
-agg_lsoa_b <- agg_lsoa_s %>% 
-  ms_innerlines()
+agg_lsoa_s_7 <- agg_lsoa_shape %>% 
+  filter(
+    NAME %in% c("Greater London", "City and County of the City of London")
+  ) %>% 
+  st_as_sf() %>% 
+  ms_simplify(keep = .01)
+
+# cities
+cities <- maps::world.cities %>% 
+  dplyr::filter(
+    country.etc=="UK", 
+    name %in% c("Liverpool", "Birmingham", "Manchester", "Cardiff",
+                "Newcastle upon Tyne", "London", "Bristol")
+  ) %>% 
+  transmute(name = name %>% str_remove(" upon Tyne"), long, lat) %>% 
+  st_as_sf(
+    coords = c("long", "lat"),
+    crs = 4326
+  )
+
+# Wales hospitals
+wales_h <- read.csv("data/wales_bed_data/nhs_wales_facilities_geocoded_cleaned.csv") %>% 
+  drop_na() %>% 
+  st_as_sf(
+    coords = c("long", "lat"),
+    crs = 4326
+  ) %>% 
+  ms_clip(wales_df %>% ms_dissolve())
+
 
 # save and load back -- for furute return
 save(
@@ -106,8 +162,11 @@ save(
   agg_region_b,
   agg_ccounty_s,
   agg_ccounty_b,
-  agg_lsoa_s,
-  agg_lsoa_b,
+  agg_lsoa_s_5,
+  agg_ccounty_b_5,
+  wales_h,
+  agg_lsoa_s_7,
+  cities,
   file = "data/for graphs/ready.rda"
 )
 
@@ -156,8 +215,8 @@ save(caption, plot_title1, plot_title2, plot_title3, plot_title4, plot_title5,
 # -- Plot 5
 # data: agg_lsoa_shape subsetted by Wales counties
 # agg_lsoa_shape[grepl("Powys|Gwent|Glamorgan|Dyfed|Gwynedd|Clwyd", agg_lsoa_shape$NAME), ])
-# Left panel: abs_excess_demand_hosp
-# Right panel: abs_excess_demand_hosp_acute
+# Left panel: pc_hosp
+# Right panel: pc_hosp_acute
 # read.csv("data/wales_bed_data/nhs_wales_facilities_geocoded_cleaned.csv")
 # plot / indicate hospitals
 
@@ -169,10 +228,12 @@ save(caption, plot_title1, plot_title2, plot_title3, plot_title4, plot_title5,
 
 # -- Plot 7
 # data: agg_lsoa_shape
-# Main figure: abs_excess_demand_hosp
+# Main figure: pc_hosp
 # zoombox for two areas: Harrow 001C, Newham 013G (areacodes E01033583 and E01002225)
 # readRDS("data/for graphs/london_highlight.rds")
 
 # -- Plot 8
 # data: agg_ccount_shape
 # new variable: pop divided by area? 
+
+
