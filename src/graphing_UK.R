@@ -4,7 +4,6 @@ rm(list = ls())
 ## Created: 16-03-2020
 ## Code Review:
 
-setwd("")
 
 # Load packages
 packages <- c("tidyverse", "tidycensus", "magrittr", "readxl", "sp", "gpclib", "maptools", "spdep",
@@ -16,10 +15,10 @@ source("src/graphing_functions.R")
 
 # Load Data
 agg_uk_h <- readRDS("data/final/UK_2018_all_rates_01.rds")  # Data at 1% infection uniform
-agg_uk_h_0025 <- readRDS("data/final/UK_2018_all_rates_0025.rds")  # Data at 0.25% infection uniform
 
 # Crosswalk from LDA to Region
-cw_lda_region <- read.csv("data/geo_crosswalks/CW_LDA_Region.csv")  # this crosswalk is LDA to Region (we have both LSOA and LDA in the raw data)
+cw_lda_region <- read.csv("data/geo_crosswalks/CW_LDA_Region.csv") %>%
+  mutate(LAD19NM = gsub(", City of.*|, County.*", "", LAD19NM))  # this crosswalk is LDA to Region (we have both LSOA and LDA in the raw data)
 cw_lsoa_ccounty <- read.csv("data/geo_crosswalks/CW_LSOA_CCounty.csv") %>%
   mutate(NAME = gsub("\\&", "and", NAME))  # this crosswalk is generated using a multipolygon matching algorithm to fit LSOA to county
 
@@ -45,26 +44,23 @@ uk <- read.csv("data/census UK/UK_2018_all.csv") %>%
 
 # Create a region and county aggregated count of fatalities, hospitalizations etc.
 region_df <- regional_agg(agg_uk_h, uk, cw_lda_region, hospital_region)
-ccounty_df <- county_agg(agg_uk_h, uk, cw_lsoa_ccounty, hospital_ccounty)
+ccounty_df <- county_agg(agg_uk_h, uk, cw_lsoa_ccounty, hospital_ccounty) %>%
+  mutate(general_cap = ifelse(is.na(general_cap), 0, general_cap),
+         acute_cap = ifelse(is.na(acute_cap), 0, acute_cap))
 lsoa_df <- agg_uk_h %>%
   group_by(AreaCodes) %>%
   summarise_all(list(sum))
 
-# Same for 0.25% infection  
-region_df_0025 <- regional_agg(agg_uk_h_0025, uk, cw_lda_region, hospital_region)
-ccounty_df_0025 <- county_agg(agg_uk_h_0025, uk, cw_lsoa_ccounty, hospital_ccounty)
+# merge city of london into greater london
+ccounty_df[grepl("GREATER LONDON", ccounty_df$CCTY19NM), 2:7] <- ccounty_df[grepl("GREATER LONDON", ccounty_df$CCTY19NM), 2:7] + ccounty_df[grepl("CITY OF LONDON", ccounty_df$CCTY19NM), 2:7]
+ccounty_df <- ccounty_df %>%
+  filter(!grepl("CITY OF LONDON", CCTY19NM))
 
 # Address that there are only 7 NHS regions, whereas there are 9 administrative regions. Decompose capacity by pop
 dup1 <- c("E12000004", "E12000005")
 dup2 <- c("E12000001", "E12000003")
 
-# Do this for the 1% data
 region_df <- region_df %>%
-  weight_capacity(dup1) %>%
-  weight_capacity(dup2)
-
-# Do this for the 0.25% data
-region_df_0025 <- region_df_0025 %>%
   weight_capacity(dup1) %>%
   weight_capacity(dup2)
 
@@ -84,7 +80,9 @@ London_df <- London_df[order(London_df$hosp_rate, decreasing = T), ]
 London_specific <- readRDS("data/census UK/UK_2018_wide.rds") %>%
   filter(AreaCodes %in% c("E01033583", "E01002225"))
 London_specific[, 4:22] <- London_specific[, 4:22] / rowSums(London_specific[, 4:22])
-ggplot(London_specific %>% select(-AllAges) %>% melt(id.vars = c("AreaCodes", "LSOA"))) +
+saveRDS(London_specific, "data/for graphs/london_highlight.rds")
+
+ggplot(London_specific %>% dplyr::select(-AllAges) %>% melt(id.vars = c("AreaCodes", "LSOA"))) +
   geom_bar(aes(x = variable, y = value, fill=LSOA), stat = "identity", position = "dodge") +
   theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust=1)) +
   labs(title = "Age structure of Harrow (001C) and Newham (013G)", x="Proportion of population", y="Age")
@@ -92,6 +90,10 @@ ggplot(London_specific %>% select(-AllAges) %>% melt(id.vars = c("AreaCodes", "L
 # E01033583 
 # E01002901
 
+# Save data part
+saveRDS(region_df, "data/for graphs/region_data.rds")
+saveRDS(ccounty_df, "data/for graphs/ccounty_data.rds")
+saveRDS(lsoa_df, "data/for graphs/lsoa_data.rds")
 
 # Merge to shapefiles and generate per capita measures
 agg_region_shape <- sp::merge(region_df, region_shape, by.x="geo_code", by.y="rgn17cd") %>%
@@ -120,6 +122,8 @@ agg_lsoa_shape <- sp::merge(lsoa_df, lsoa_shape, by.x="AreaCodes", by.y="LSOA11C
   mutate(pc_hosp = hospitalization / value * 1000,
          pc_hosp_acute = hospitalization_acute / value * 1000,
          pc_fatailties = fatalities / value * 1000)
+
+sum(agg_ccounty_shape$pop)
 
 ## ---- LSOA Specific Graphs ---- ##
 
