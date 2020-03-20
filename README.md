@@ -1,3 +1,13 @@
+---
+title: Spatial variation in COVID-19 risk - a demographer's perspective
+author: Mark D. Verhagen, D.avid M. Brazel, Charles Rahal, Jennifer Beam Dowd, Ilya Kashnitsky, Melinda C. Mills
+date: today
+---
+
+### Introduction
+
+
+
 In data, corono_pop_proj has:
 
 - age
