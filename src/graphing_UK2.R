@@ -5,7 +5,7 @@ rm(list = ls())
 ## Code Review:
 
 # Load packages
-packages <- c("tidyverse", "tidycensus", "magrittr", "readxl", "sp", "gpclib", "maptools", "spdep",
+packages <- c("tidyverse", "tidycensus", "magrittr", "readxl", "sp", "gpclib", "maptools", "spdep", "raster", "rgdal",
               "maptools", "RColorBrewer", "lattice", "gridExtra", "sf", "reshape2", "spData", "rgeos")
 lapply(packages, require, character.only = TRUE)
 
@@ -35,6 +35,16 @@ region_df <- readRDS("data/for graphs/region_data.rds")
 ccounty_df <- readRDS("data/for graphs/ccounty_data.rds")
 lsoa_df <- readRDS("data/for graphs/lsoa_data.rds")
 wales_df <- readRDS("data/for graphs/wales_outline_beds.rds")
+wales_df$Id <- "Wales"
+wales_df <- st_as_sf(unionSpatialPolygons(as(wales_df, 'Spatial'), wales_df$Id)) %>%
+  mutate(general_cap = 10465,
+         acute_cap = 153,
+         population = 3138631,
+         fatalities = 7939,
+         hospitalizations = 26242,
+         hospitalizations_acute = 8758,
+         RGN19CD = "Wales",
+         geo_code = "Wales")
 
 # read shapefiles
 region_shape <- sf::st_read("shapefiles/UK/Regions/Regions_December_2017_Generalised_Clipped_Boundaries_in_England.shp")
@@ -49,8 +59,8 @@ lsoa_shape <- sf::st_read("shapefiles/UK/Lower_Layer_Super_Output_Areas_December
 
 # Regional SF
 agg_region_shape <- sp::merge(region_df, region_shape, by.x="geo_code", by.y="rgn17cd") %>%
-  create_map_stats()
-head(agg_region_shape)
+  create_map_stats() %>%
+
 
 # County SF
 agg_ccounty_shape <- sp::merge(ccounty_df, ccounty_shape, by.x="CCTY19NM", by.y="NAME", all.x=T) %>%
@@ -73,6 +83,7 @@ plot_title6 <- "County Tipping Point of Infection for General Hospitalization an
 plot_title7 <- "London Local Differences in Hospitalization Need"
 
 # -- Plot 1
+## Can you include the wales_df sf to the agg_region_shape one? I can't get is to work
 # data: agg_region_shape
 # Left panel: pc_capacity
 # Right panel: pc_capacity_acute
@@ -99,7 +110,7 @@ plot_title7 <- "London Local Differences in Hospitalization Need"
 
 # -- Plot 5
 # data: agg_lsoa_shape subsetted by Wales counties
-# agg_lsoa_shape[grepl("Powys|Gwent|Glamorgan|Dyfed|Gwynedd|Clwyd", agg_lsoa_shape$NAME), ]
+# agg_lsoa_shape[grepl("Powys|Gwent|Glamorgan|Dyfed|Gwynedd|Clwyd", agg_lsoa_shape$NAME), ])
 # Left panel: abs_excess_demand_hosp
 # Right panel: abs_excess_demand_hosp_acute
 # read.csv("data/wales_bed_data/nhs_wales_facilities_geocoded_cleaned.csv")
