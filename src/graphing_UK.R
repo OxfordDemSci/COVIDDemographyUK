@@ -100,7 +100,9 @@ agg_region_shape <- sp::merge(region_df, region_shape, by.x="geo_code", by.y="rg
          pc_hosp = hospitalizations / pop * 1000,
          pc_hosp_acute = hospitalizations_acute / pop * 1000,
          abs_excess_demand_hosp = (hospitalizations - general_cap) * 1000 / pop,
-         abs_excess_demand_hosp_acute = (hospitalizations_acute - acute_cap) * 1000 / pop)
+         abs_excess_demand_hosp_acute = (hospitalizations_acute - acute_cap) * 1000 / pop,
+         tipping_point_capacity = 10 / (pc_hosp / pc_capacity),
+         tipping_point_capacity_acute = 10 / (pc_hosp_acute / pc_capacity_acute))
 
 print(paste0("All codes in shapefile match data?: ", all(ccounty_df$CCTY19NM %in% ccounty_shape$NAME)))
 
@@ -110,7 +112,9 @@ agg_ccounty_shape <- sp::merge(ccounty_df, ccounty_shape, by.x="CCTY19NM", by.y=
          pc_hosp = hospitalizations / pop * 1000,
          pc_hosp_acute = hospitalizations_acute / pop * 1000,
          abs_excess_demand_hosp = (hospitalizations - general_cap) * 1000 / pop,
-         abs_excess_demand_hosp_acute = (hospitalizations_acute - acute_cap) * 1000 / pop)
+         abs_excess_demand_hosp_acute = (hospitalizations_acute - acute_cap) * 1000 / pop,
+         tipping_point_capacity = 10 / (pc_hosp / pc_capacity),
+         tipping_point_capacity_acute = 10 / (pc_hosp_acute / pc_capacity_acute))
 
 agg_lsoa_shape <- sp::merge(lsoa_df, lsoa_shape, by.x="AreaCodes", by.y="LSOA11CD", all.x=T) %>%
   mutate(pc_hosp = hospitalization / value * 1000,
