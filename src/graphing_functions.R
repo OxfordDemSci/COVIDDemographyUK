@@ -1,14 +1,14 @@
 
-read_region_hospital <- function(path="data/hospital beds/hospital_beds.csv") {
+read_region_hospital <- function() {
   ### Read information on hospital capacity on the regional level
   acute <- read.csv("data/hospital beds/hospital_accute.csv") %>%
     mutate(Region = gsub(" Comm.*", "", Region)) %>%
     mutate(Region = toupper(gsub(" And York.*| Of Eng.*", "", Region))) %>%
-    select(Region, Acute) %>%
+    dplyr::select(Region, Acute) %>%
     group_by(Region) %>%
     summarise(Acute = sum(Acute))
   
-  total <- read.csv(path) %>%
+  total <- read.csv("data/hospital beds/hospital_beds.csv") %>%
     dplyr::select(Region.Code, AT.Name, General...Acute) %>%
     mutate(AT.Name = gsub(" COMM.*", "", AT.Name),
            AT.Name = trimws(AT.Name),
@@ -17,7 +17,7 @@ read_region_hospital <- function(path="data/hospital beds/hospital_beds.csv") {
     merge.data.frame(acute, by.x = "AT.Name", by.y="Region") %>%
     mutate(general_cap = as.numeric(gsub("\\,", "", General...Acute))) %>%
     rename(acute_cap = Acute) %>%
-    select(-General...Acute)
+    dplyr::select(-General...Acute)
   return(total)
 }
 
@@ -25,7 +25,7 @@ read_county_hospital <- function(path="data/hospital beds/all_hospitals_county.c
   ### Read information on hospital capacity on the county level
   hospital_county <- read.csv(path) %>%
     left_join(read.csv("data/hospital beds/hospital_accute.csv") %>%
-                select(Org, Acute)) %>%
+                dplyr::select(Org, Acute)) %>%
            mutate(X.1 = as.numeric(gsub("\\,", "", X.1)),
                   X.1 = ifelse(is.na(X.1), 0, X.1),
                   Acute = ifelse(is.na(Acute), 0, Acute)) %>%
@@ -119,6 +119,9 @@ change_LDA <- function(uk) {
   uk$LSOA[grepl("Taunton", uk$LSOA)] <- "Somerset West and Taunton"
   uk$LSOA[grepl("Suffolk Coastal|Waveney", uk$LSOA)] <- "East Suffolk"
   uk$LSOA[grepl("Shepway", uk$LSOA)] <- "Folkestone and Hythe"
+  uk$LSOA[grepl("Shepway", uk$LSOA)] <- "Folkestone and Hythe"
+  uk$LSOA[grepl("Poole|Bournemouth|Christchurch", uk$LSOA)] <- "Bournemouth, Christchurch and Poole"
+  uk$LSOA[grepl("East Dorset|North Dorset|West Dorset|Weymouth|Purbec", uk$LSOA)] <- "Dorset"
   return(uk)
 }
 
@@ -132,3 +135,23 @@ weight_capacity <- function(df, dup) {
   return(df)
 }
 
+read_wales_hospital <- function(ccounty_shape) {
+  # Need to merge two of the polygons to one in the ceremonial counties list
+  wales <- readRDS("data/wales_bed_data/nhs_wales_beds_cleaned.rds") %>%
+    dplyr::select(name, beds, intensive_care_beds)
+  wales <- st_join(wales, ccounty_shape, largest = TRUE) %>%
+    dplyr::select(NAME, beds, intensive_care_beds)
+  
+  wales <- `st_geometry<-`(wales, NULL) %>%
+    rename(general_cap = beds,
+           acute_cap = intensive_care_beds,
+           county = NAME) %>%
+    mutate(acute_cap = round(acute_cap))
+  
+  ## In the Welsh data, Gwynedd and Clwyd are merged together. Unmerge and divide capacity along population.
+  ## Total population in Gwynedd and Clwyd is 698K, 504K live in Gwynedd, 194K live in Clwyd.
+  wales$general_cap[wales$county == "GWYNEDD"] <- round(wales$general_cap[wales$county == "GWYNEDD"]) * (198 / 698)
+  wales$acute_cap[wales$county == "GWYNEDD"] <- round(wales$acute_cap[wales$county == "GWYNEDD"]) * (198 / 698)
+  wales <- rbind(wales, c("CLWYD", 2221 * (504 / 689), 31 * (504/689)))
+  return(wales)
+}
