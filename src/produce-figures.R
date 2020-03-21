@@ -563,12 +563,12 @@ agg_ccounty_s %>%
     palette = 'Oranges', direction = 1
   ) + 
   own_theme +
-  labs(caption = caption,
-       title = "Population density in counties. England & Wales")
+  labs(caption = "Source: Leverhume Center for Demographic Science\n(using data from ONS, NHS and StatsWales)",
+       title = "Population density in counties\nEngland & Wales")
 
 ccounty_popdens <- last_plot()
 
 ggsave(filename = "figs-upd/eight.pdf", 
        ccounty_popdens,
-       width = 7.5, height = 7.5, 
+       width = 5, height = 6, 
        device = cairo_pdf)
