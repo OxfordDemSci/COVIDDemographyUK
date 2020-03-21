@@ -10,7 +10,7 @@ March 20th, 2020
 
 ### Introduction
 
-This repository contains code used to generate local risk measures of hospitalization in the UK within the context of the COVID-19 pandemic. These local risk measures are overlayed with hospital capacity. The corresponding preprint is available at https://osf.io/g8s96/
+This repository contains code used to generate local risk measures of hospitalization in the UK within the context of the COVID-19 pandemic. These local risk measures are overlayed with hospital capacity. The corresponding preprint is available at https://osf.io/g8s96/.
 
 ### Structure of the Repository
 
