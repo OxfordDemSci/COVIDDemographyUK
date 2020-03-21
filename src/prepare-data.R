@@ -6,7 +6,8 @@
 
 # Load packages
 packages <- c("tidyverse", "tidycensus", "magrittr", "readxl", "sp", "gpclib", "maptools", "spdep", "raster", "rgdal",
-              "maptools", "RColorBrewer", "lattice", "gridExtra", "sf", "reshape2", "spData", "rgeos")
+              "maptools", "RColorBrewer", "lattice", "gridExtra", "sf", "reshape2", "spData", "rgeos",
+              "maps")
 lapply(packages, require, character.only = TRUE)
 
 library(tidyverse)
@@ -47,11 +48,11 @@ ccounty_shape <- sf::st_read("shapefiles/UK/CCounties/Boundary-line-ceremonial-c
   mutate(NAME = gsub(" Cer", "", NAME),
          NAME = gsub("\\&", "and", NAME),
          NAME = toupper(NAME))
-lsoa_shape <- sf::st_read("shapefiles/UK/Lower_Layer_Super_Output_Areas_December_2011_Boundaries_EW_BFC.shp") %>%
+lsoa_shape <- sf::st_read("shapefiles/UK/LSOA_shape/Lower_Layer_Super_Output_Areas_December_2011_Boundaries_EW_BFC.shp") %>%
   merge.data.frame(cw_lsoa_ccounty[, c("LSOA11CD", "NAME")], by="LSOA11CD")  # Not necessary yet
 
-lsoa_shape <- sf::st_read("~/Downloads/LSOA_shape/Lower_Layer_Super_Output_Areas_December_2011_Boundaries_EW_BFC.shp") %>%
-  merge.data.frame(cw_lsoa_ccounty[, c("LSOA11CD", "NAME")], by="LSOA11CD")  # Not necessary yet
+# lsoa_shape <- sf::st_read("~/Downloads/LSOA_shape/Lower_Layer_Super_Output_Areas_December_2011_Boundaries_EW_BFC.shp") %>%
+#   merge.data.frame(cw_lsoa_ccounty[, c("LSOA11CD", "NAME")], by="LSOA11CD")  # Not necessary yet
 
 ## --- Creating sf's --- ##
 
@@ -175,12 +176,12 @@ load("data/for graphs/ready.rda")
 
 ## --- Plotting --- ##
 caption <- "Source: Leverhume Center for Demographic Science (using data from ONS, NHS and StatsWales)"  # to be used everywhere
-plot_title1 <- "Regional Hospital Bed Capacity (per 1,000) for General Hospitalization and Critical Care. England & Wales"
-plot_title2 <- "County Hospital Bed Capacity (per 1,000) for General Hospitalization and Critical Care. England & Wales"
-plot_title3 <- "County Expected Hospitalization (per 1,000) for General Hospitalization and Critical Care. England & Wales"
-plot_title4 <- "Excess Need for Hospital Beds (per 1,000) in case of a 10% Nationwide Infection. England & Wales"
-plot_title5 <- "Excess Need for Hospital Beds (per 1,000) and Capacity in case of a 10% Nationwide Infection. Wales"
-plot_title6 <- "County Tipping Point of Infection for General Hospitalization and Critical Care. England & Wales"
+plot_title1 <- "Regional Hospital Bed Capacity (per 1,000) for General Hospitalization (A) and Critical Care (B). England & Wales"
+plot_title2 <- "County Hospital Bed Capacity (per 1,000) for General Hospitalization (A) and Critical Care (B). England & Wales"
+plot_title3 <- "County Expected Hospitalization (per 1,000) for General Hospitalization (A) and Critical Care (B). England & Wales"
+plot_title4 <- "Excess Need for Hospital Beds (per 1,000) in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B). England & Wales"
+plot_title5 <- "Excess Need for Hospital Beds (per 1,000) and Capacity in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B). Wales"
+plot_title6 <- "County Tipping Point of Infection for General Hospitalization (A) and Critical Care (B). England & Wales"
 plot_title7 <- "London Local Differences in Hospitalization Need"
 
 save(caption, plot_title1, plot_title2, plot_title3, plot_title4, plot_title5,

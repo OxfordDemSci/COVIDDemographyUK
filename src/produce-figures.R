@@ -11,14 +11,15 @@ library(patchwork)
 library(hrbrthemes)
 library(cowplot)
 library(showtext)
+library(ggplot2)
+library(ggthemes)
 font_add_google("Roboto Condensed", "Roboto Condensed")
 font_add_google("Roboto Slab", "Roboto Slab")
 showtext::showtext_auto()
 
-
 # define own theme
-own_theme <- theme_map(font_size = 14, font_family = font_rc)+
-  theme(
+own_theme <- cowplot::theme_map(font_size = 14, font_family = font_rc)+
+  ggplot2::theme(
     legend.position = c(.1, .75),
     plot.title = element_text(family = "Roboto Slab", size = 20,  face = 2)
   )
@@ -99,10 +100,7 @@ fig_one <-  own_plot_grid(
 
 ggsave(filename = "figs-upd/one.pdf", 
        fig_one,
-       width = 10, height = 7, 
-       device = cairo_pdf)
-
-
+       width = 10, height = 7)
 
 # Fig 2 -------------------------------------------------------------------
 # general ccounty
@@ -156,8 +154,7 @@ fig_two <- own_plot_grid(
 
 ggsave(filename = "figs-upd/two.pdf", 
        fig_two,
-       width = 10, height = 7, 
-       device = cairo_pdf)
+       width = 10, height = 7)
 
 
 
@@ -253,8 +250,7 @@ fig_three <- own_plot_grid(
 
 ggsave(filename = "figs-upd/three.pdf", 
        fig_three,
-       width = 10, height = 7, 
-       device = cairo_pdf)
+       width = 10, height = 7)
 
 
 # Fig 4  ------------------------------------------------------------------
@@ -310,7 +306,7 @@ agg_ccounty_s %>%
                family = font_rc, fontface = 3)+
   coord_sf(datum = NA)+
   scale_fill_fermenter(
-    "Cases per\n1,000",
+    "Excess Need\nper 1,000",
     palette = 'PuBuGn', direction = 1
   ) + 
   own_theme
@@ -331,7 +327,7 @@ agg_ccounty_s %>%
                family = font_rc, fontface = 3)+
   coord_sf(datum = NA)+
   scale_fill_fermenter(
-    "Cases per\n1,000",
+    "Excess Need\nper 1,000",
     palette = 'BuPu', direction = 1
   ) + 
   own_theme 
@@ -348,10 +344,7 @@ fig_four <- own_plot_grid(
 
 ggsave(filename = "figs-upd/four.pdf", 
        fig_four,
-       width = 10, height = 7, 
-       device = cairo_pdf)
-
-
+       width = 10, height = 7)
 
 # Fig 5 -------------------------------------------------------------------
 
@@ -404,11 +397,7 @@ fig_five <- own_plot_grid(
 
 ggsave(filename = "figs-upd/five.pdf", 
        fig_five,
-       width = 10, height = 7, 
-       device = cairo_pdf)
-
-
-
+       width = 10, height = 7)
 
 # Fig 6 -------------------------------------------------------------------
 
@@ -425,7 +414,7 @@ agg_ccounty_s %>%
                family = font_rc, fontface = 3)+
   coord_sf(datum = NA)+
   scale_fill_fermenter(
-    "Cases per\n1,000",
+    "Overall\nInfection",
     palette = 'Oranges', direction = 1
   ) + 
   own_theme
@@ -451,7 +440,7 @@ agg_ccounty_s %>%
   )+
   coord_sf(datum = NA)+
   scale_fill_fermenter(
-    "Cases per\n1,000",
+    "Overall\nInfection",
     palette = 'PuRd', direction = 1,
     breaks = seq(.25, 1.5, .25)
   ) + 
@@ -469,8 +458,7 @@ fig_six <- own_plot_grid(
 
 ggsave(filename = "figs-upd/six.pdf", 
        fig_six,
-       width = 10, height = 7, 
-       device = cairo_pdf)
+       width = 10, height = 7)
 
 
 
