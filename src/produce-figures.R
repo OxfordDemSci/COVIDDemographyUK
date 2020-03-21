@@ -98,7 +98,7 @@ fig_one <-  own_plot_grid(
   plot_title1
 )
 
-ggsave(filename = "figs-upd/one.pdf", 
+ggsave(filename = "figs_paper/one.pdf", 
        fig_one,
        width = 10, height = 7)
 
@@ -152,7 +152,7 @@ fig_two <- own_plot_grid(
   plot_title2
 )
 
-ggsave(filename = "figs-upd/two.pdf", 
+ggsave(filename = "figs_paper/two.pdf", 
        fig_two,
        width = 10, height = 7)
 
@@ -248,7 +248,7 @@ fig_three <- own_plot_grid(
   plot_title3
 )
 
-ggsave(filename = "figs-upd/three.pdf", 
+ggsave(filename = "figs_paper/three.pdf", 
        fig_three,
        width = 10, height = 7)
 
@@ -342,7 +342,7 @@ fig_four <- own_plot_grid(
   plot_title4
 )
 
-ggsave(filename = "figs-upd/four.pdf", 
+ggsave(filename = "figs_paper/four.pdf", 
        fig_four,
        width = 10, height = 7)
 
@@ -395,7 +395,7 @@ fig_five <- own_plot_grid(
   plot_title5
 )
 
-ggsave(filename = "figs-upd/five.pdf", 
+ggsave(filename = "figs_paper/five.pdf", 
        fig_five,
        width = 10, height = 7)
 
@@ -456,7 +456,7 @@ fig_six <- own_plot_grid(
   plot_title6
 )
 
-ggsave(filename = "figs-upd/six.pdf", 
+ggsave(filename = "figs_paper/six.pdf", 
        fig_six,
        width = 10, height = 7)
 
@@ -524,7 +524,7 @@ fig_seven <- ggdraw()+
   draw_plot(london_pc_hosp, x =0, y = 0, width = .8, height = 1)+
   draw_plot(london_highlight, x = .67, y = 0, width = .33, height = .52)
   
-ggsave(filename = "figs-upd/seven.pdf", 
+ggsave(filename = "figs_paper/seven.pdf", 
        fig_seven,
        width = 10, height = 7, 
        device = cairo_pdf)
@@ -556,7 +556,7 @@ agg_ccounty_s %>%
 
 ccounty_popdens <- last_plot()
 
-ggsave(filename = "figs-upd/eight.pdf", 
+ggsave(filename = "figs_paper/eight.pdf", 
        ccounty_popdens,
        width = 5, height = 6, 
        device = cairo_pdf)
