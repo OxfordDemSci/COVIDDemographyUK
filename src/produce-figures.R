@@ -332,11 +332,11 @@ agg_ccounty_s %>%
   coord_sf(datum = NA)+
   scale_fill_fermenter(
     "Cases per\n1,000",
-    palette = 'RdPu', direction = 1
+    palette = 'BuPu', direction = 1
   ) + 
   own_theme 
 
-  ccounty_abs_diff_hosp_acute_demand <- last_plot()
+ccounty_abs_diff_hosp_acute_demand <- last_plot()
 
 
 # four
