@@ -5,10 +5,10 @@
 ## Code Review: Ilya Kashnitsky
 
 # Load packages
-packages <- c("tidyverse", "tidycensus", "magrittr", "readxl", "sp", "gpclib", "maptools", "spdep", "raster", "rgdal",
-              "maptools", "RColorBrewer", "lattice", "gridExtra", "sf", "reshape2", "spData", "rgeos",
-              "maps")
-lapply(packages, require, character.only = TRUE)
+# packages <- c("tidyverse", "tidycensus", "magrittr", "readxl", "sp", "gpclib", "maptools", "spdep", "raster", "rgdal",
+#               "maptools", "RColorBrewer", "lattice", "gridExtra", "sf", "reshape2", "spData", "rgeos",
+#               "maps")
+# lapply(packages, require, character.only = TRUE)
 
 library(tidyverse)
 library(sf)
@@ -40,7 +40,7 @@ cw_lsoa_ccounty <- read.csv("data/geo_crosswalks/CW_LSOA_CCounty.csv") %>%
 region_df <- readRDS("data/for graphs/region_data.rds")
 ccounty_df <- readRDS("data/for graphs/ccounty_data.rds")
 lsoa_df <- readRDS("data/for graphs/lsoa_data.rds")
-
+CCG_df <- readRDS("data/for graphs/ccg_data.rds")
 
 # read shapefiles
 region_shape <- sf::st_read("shapefiles/UK/Regions/Regions_December_2017_Generalised_Clipped_Boundaries_in_England.shp")
@@ -49,10 +49,13 @@ ccounty_shape <- sf::st_read("shapefiles/UK/CCounties/Boundary-line-ceremonial-c
          NAME = gsub("\\&", "and", NAME),
          NAME = toupper(NAME))
 lsoa_shape <- sf::st_read("shapefiles/UK/LSOA_shape/Lower_Layer_Super_Output_Areas_December_2011_Boundaries_EW_BFC.shp") %>%
-  merge.data.frame(cw_lsoa_ccounty[, c("LSOA11CD", "NAME")], by="LSOA11CD")  # Not necessary yet
+  merge.data.frame(cw_lsoa_ccounty[, c("LSOA11CD", "NAME")], by="LSOA11CD") 
+ccg_shape <- sf::st_read("shapefiles/UK/CCG/Clinical_Commissioning_Groups_April_2019_Boundaries_EN_BFC.shp")
 
-# lsoa_shape <- sf::st_read("~/Downloads/LSOA_shape/Lower_Layer_Super_Output_Areas_December_2011_Boundaries_EW_BFC.shp") %>%
-#   merge.data.frame(cw_lsoa_ccounty[, c("LSOA11CD", "NAME")], by="LSOA11CD")  # Not necessary yet
+# # here go IK local paths to the heavy shapes
+# lsoa_shape <- sf::st_read("~/Downloads/uk-shp/LSOA_shape/Lower_Layer_Super_Output_Areas_December_2011_Boundaries_EW_BFC.shp") %>%
+#   merge.data.frame(cw_lsoa_ccounty[, c("LSOA11CD", "NAME")], by="LSOA11CD")
+# ccg_shape <- sf::st_read("~/Downloads/uk-shp/Clinical_Commissioning_Groups_April_2019_Boundaries_EN_BFC/Clinical_Commissioning_Groups_April_2019_Boundaries_EN_BFC.shp")
 
 ## --- Creating sf's --- ##
 
@@ -92,6 +95,10 @@ agg_lsoa_shape <- sp::merge(lsoa_df, lsoa_shape, by.x="AreaCodes", by.y="LSOA11C
          pc_hosp_acute = hospitalization_acute / value * 1000,
          pc_fatailties = fatalities / value * 1000)
 
+# CCG SF
+agg_ccg_shape <- sp::merge(CCG_df, ccg_shape, by = "CCG19CD") %>%
+  create_map_stats()
+
 # simplify polygons !!!
 # the shapefiles are unnecessarily detailed
 # note -- we keep 1% of all the dots, and it's still fine
@@ -112,22 +119,30 @@ agg_ccounty_s <- agg_ccounty_shape %>%
 agg_ccounty_b <- agg_ccounty_s %>% 
   ms_innerlines()
 
-agg_ccounty_b_5 <- agg_ccounty_s %>% 
+agg_ccounty_b_s4 <- agg_ccounty_s %>% 
   filter(
     CCTY19NM %in% toupper(c("Powys","Gwent","Glamorgan","Dyfed","Gwynedd","Clwyd"))
   ) %>% 
   ms_innerlines()
 
+## CCG
+
+agg_ccg_s <- agg_ccg_shape %>% 
+  st_as_sf() %>% 
+  ms_simplify(keep = .01)
+
+agg_ccg_b <- agg_ccg_s %>% 
+  ms_innerlines()
 
 # subset for specific figures
-agg_lsoa_s_5 <- agg_lsoa_shape %>% 
+agg_lsoa_s_s4 <- agg_lsoa_shape %>% 
   filter(
     NAME %in% c("Powys","Gwent","Glamorgan","Dyfed","Gwynedd","Clwyd")
   ) %>% 
   st_as_sf() %>% 
   ms_simplify(keep = .01)
 
-agg_lsoa_s_7 <- agg_lsoa_shape %>% 
+agg_lsoa_s_5 <- agg_lsoa_shape %>% 
   filter(
     NAME %in% c("Greater London", "City and County of the City of London")
   ) %>% 
@@ -163,10 +178,12 @@ save(
   agg_region_b,
   agg_ccounty_s,
   agg_ccounty_b,
-  agg_lsoa_s_5,
-  agg_ccounty_b_5,
+  agg_ccg_s,
+  agg_ccg_b,
+  agg_lsoa_s_s4,
+  agg_ccounty_b_s4,
   wales_h,
-  agg_lsoa_s_7,
+  agg_lsoa_s_5,
   cities,
   file = "data/for graphs/ready.rda"
 )
@@ -176,16 +193,22 @@ load("data/for graphs/ready.rda")
 
 ## --- Plotting --- ##
 caption <- "Source: Leverhume Center for Demographic Science (using data from ONS, NHS and StatsWales)"  # to be used everywhere
-plot_title1 <- "Regional Hospital Bed Capacity (per 1,000) for General Hospitalization (A) and Critical Care (B). England & Wales"
-plot_title2 <- "County Hospital Bed Capacity (per 1,000) for General Hospitalization (A) and Critical Care (B). England & Wales"
-plot_title3 <- "County Expected Hospitalization (per 1,000) for General Hospitalization (A) and Critical Care (B). England & Wales"
-plot_title4 <- "Excess Need for Hospital Beds (per 1,000) in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B). England & Wales"
-plot_title5 <- "Excess Need for Hospital Beds (per 1,000) and Capacity in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B). Wales"
-plot_title6 <- "County Tipping Point of Infection for General Hospitalization (A) and Critical Care (B). England & Wales"
-plot_title7 <- "London Local Differences in Hospitalization Need"
+plot_title_01 <- "Regional Hospital Bed Capacity (per 1,000) for General Hospitalization (A) and Critical Care (B). England & Wales"
+plot_title_02 <- "County Expected Hospitalization (per 1,000) for General Hospitalization (A) and Critical Care (B). England & Wales"
+plot_title_03 <- "County Excess Need for Hospital Beds (per 1,000) in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B). England & Wales"
+plot_title_04 <- "County Tipping Point of Infection for General Hospitalization (A) and Critical Care (B). England & Wales"
+plot_title_05 <- "London Local Differences in Hospitalization Need in Case of a 10% Overall Infection"
+plot_title_s01 <- "County Hospital Bed Capacity (per 1,000) for General Hospitalization (A) and Critical Care (B). England & Wales"
+plot_title_s02 <- "CCG Hospital Bed Capacity (per 1,000) for General Hospitalization (A) and Critical Care (B). England"
+plot_title_s03 <- "CCG Expected Hospitalization (per 1,000) for General Hospitalization (A) and Critical Care (B). England"
+plot_title_s04 <- "CCG Excess Need for Hospital Beds (per 1,000) in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B). England"
+plot_title_s05 <- "Local Expected Hospitalizatoin (per 1,000) in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B) and Local Hospital Capacity. Wales"
+plot_title_s06 <- "CCG Excess Need for Hospital Beds (per 1,000) in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B). England"
+
 
 save(caption, plot_title1, plot_title2, plot_title3, plot_title4, plot_title5,
-     plot_title6, plot_title7, file = "data/for graphs/labs.rda")
+     plot_title6, plot_title7, plot_title8, plot_title9, plot_title10, 
+     file = "data/for graphs/labs.rda")
 
 # -- Plot 1
 ## Can you include the wales_df sf to the agg_region_shape one? I can't get is to work
