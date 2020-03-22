@@ -1,7 +1,7 @@
 # Data and code for "Mapping hospital demand: demographics, spatial variation, and the risk of 'hospital deserts' during COVID-19 in England and Wales"
 Mark D. Verhagen, David M. Brazel, Jennifer Beam Dowd, Ilya Kashnitsky, Melinda C. Mills
 
-Leverhume center for Demographic Research, University of Oxford \& Nuffield College
+Leverhulme Centre for Demographic Science, University of Oxford \& Nuffield College
 
 Interdisciplinary Centre on Population Dynamics, University of Southern Denmark
 
@@ -43,7 +43,7 @@ We calculate the expected number of hospitalizations by multiplying the *Count*,
 
 ### graphing_UK.R
 
-In this script, we generate the plots presented in the commentary. We use three separate shapefiles, one on the Regional level for England which can be found [here](https://geoportal.statistics.gov.uk/datasets/regions-december-2018-en-bfc), one on the LSOA level for both Engand and Waler which can be found [here](https://geoportal.statistics.gov.uk/datasets/lower-layer-super-output-areas-december-2011-boundaries-ew-bfc) and one on the Ceremonial County level for both England and Wales, available [here](https://www.ordnancesurvey.co.uk/business-government/products/boundaryline). A lookup between LSOA and Local Authority District (LAD) is available as part of the census by ONS, although some minor adjustments have to be made to address administrative border changes.
+In this script, we generate the plots presented in the commentary. We use three separate shapefiles, one on the Regional level for England which can be found [here](https://geoportal.statistics.gov.uk/datasets/regions-december-2018-en-bfc), one on the LSOA level for both England and Wales which can be found [here](https://geoportal.statistics.gov.uk/datasets/lower-layer-super-output-areas-december-2011-boundaries-ew-bfc) and one on the Ceremonial County level for both England and Wales, available [here](https://www.ordnancesurvey.co.uk/business-government/products/boundaryline). A lookup between LSOA and Local Authority District (LAD) is available as part of the census by ONS, although some minor adjustments have to be made to address administrative border changes.
 
 We collected NHS bed capacity for England from the NHS, which can be found [here](https://www.england.nhs.uk/statistics/statistical-work-areas/bed-availability-and-occupancy/bed-data-overnight/). Acute bed capacity can be found [here](https://www.england.nhs.uk/statistics/statistical-work-areas/critical-care-capacity/). For Wales, we used StatWales to calculate hospital bed capacity based on their daily available metric, which can be found [here](https://statswales.gov.wales/Catalogue/Health-and-Social-Care/NHS-Hospital-Activity/NHS-Beds).
 
