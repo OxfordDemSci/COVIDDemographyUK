@@ -368,20 +368,22 @@ agg_lsoa_s_5 %>%
 wales_pc_hosp <- last_plot()
 
 
+wales_h_ic <- filter(wales_h, intensive_care_beds > 0)
+
 # Excess demand acute LSOA Wales
 agg_lsoa_s_5 %>% 
   ggplot() + 
   geom_sf(color = NA)+
   geom_sf(aes(fill = pc_hosp_acute), color = NA)+
   geom_sf(data = agg_ccounty_b_5, size = .25, color = "#fafafa")+
-  geom_sf(data = wales_h, aes(size = beds), 
+  geom_sf(data = wales_h_ic, aes(size = intensive_care_beds), 
           shape = 1, stroke = .9, color = "#df356b")+
   coord_sf(datum = NA)+
   scale_fill_fermenter(
     "Cases per\n1,000",
     palette = 'RdPu', direction = 1
   ) + 
-  scale_size_area("Beds", max_size = 10)+
+  scale_size_area("IC Beds", max_size = 10)+
   own_theme +
   theme(legend.position = c(0, .6))
 
