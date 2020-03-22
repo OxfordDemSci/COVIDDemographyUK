@@ -665,11 +665,11 @@ ggsave(filename = "figs_paper/fig-s04.pdf",
 
 
 # Excess demand LSOA Wales
-agg_lsoa_s_s4 %>% 
+agg_lsoa_s_s5 %>% 
   ggplot() + 
   geom_sf(color = NA)+
   geom_sf(aes(fill = pc_hosp), color = NA)+
-  geom_sf(data = agg_ccounty_b_s4, size = .25, color = "#fafafa")+
+  geom_sf(data = agg_ccounty_b_s5, size = .25, color = "#fafafa")+
   geom_sf(data = wales_h, aes(size = beds), 
           shape = 1, stroke = .9, color = "#eec21f")+
   coord_sf(datum = NA)+
@@ -687,11 +687,11 @@ wales_pc_hosp <- last_plot()
 wales_h_ic <- wales_h %>% filter(intensive_care_beds > 0)
 
 # Excess demand acute LSOA Wales
-agg_lsoa_s_s4 %>% 
+agg_lsoa_s_s5 %>% 
   ggplot() + 
   geom_sf(color = NA)+
   geom_sf(aes(fill = pc_hosp_acute), color = NA)+
-  geom_sf(data = agg_ccounty_b_s4, size = .25, color = "#fafafa")+
+  geom_sf(data = agg_ccounty_b_s5, size = .25, color = "#fafafa")+
   geom_sf(data = wales_h_ic, aes(size = intensive_care_beds), 
           shape = 1, stroke = .9, color = "#df356b")+
   coord_sf(datum = NA)+

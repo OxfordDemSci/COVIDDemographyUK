@@ -119,7 +119,7 @@ agg_ccounty_s <- agg_ccounty_shape %>%
 agg_ccounty_b <- agg_ccounty_s %>% 
   ms_innerlines()
 
-agg_ccounty_b_s4 <- agg_ccounty_s %>% 
+agg_ccounty_b_s5 <- agg_ccounty_s %>% 
   filter(
     CCTY19NM %in% toupper(c("Powys","Gwent","Glamorgan","Dyfed","Gwynedd","Clwyd"))
   ) %>% 
@@ -135,7 +135,7 @@ agg_ccg_b <- agg_ccg_s %>%
   ms_innerlines()
 
 # subset for specific figures
-agg_lsoa_s_s4 <- agg_lsoa_shape %>% 
+agg_lsoa_s_s5 <- agg_lsoa_shape %>% 
   filter(
     NAME %in% c("Powys","Gwent","Glamorgan","Dyfed","Gwynedd","Clwyd")
   ) %>% 
@@ -180,8 +180,8 @@ save(
   agg_ccounty_b,
   agg_ccg_s,
   agg_ccg_b,
-  agg_lsoa_s_s4,
-  agg_ccounty_b_s4,
+  agg_lsoa_s_s5,
+  agg_ccounty_b_s5,
   wales_h,
   agg_lsoa_s_5,
   cities,
@@ -192,7 +192,7 @@ load("data/for graphs/ready.rda")
 
 
 ## --- Plotting --- ##
-caption <- "Source: Leverhume Center for Demographic Science (using data from ONS, NHS and StatsWales)"  # to be used everywhere
+caption <- "Source: Leverhulme Center for Demographic Science (using data from ONS, NHS and StatsWales)"  # to be used everywhere
 plot_title_01 <- "Regional Hospital Bed Capacity (per 1,000) for General Hospitalization (A) and Critical Care (B). England & Wales"
 plot_title_02 <- "County Expected Hospitalization (per 1,000) for General Hospitalization (A) and Critical Care (B). England & Wales"
 plot_title_03 <- "County Excess Need for Hospital Beds (per 1,000) in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B). England & Wales"
@@ -202,12 +202,14 @@ plot_title_s01 <- "County Hospital Bed Capacity (per 1,000) for General Hospital
 plot_title_s02 <- "CCG Hospital Bed Capacity (per 1,000) for General Hospitalization (A) and Critical Care (B). England"
 plot_title_s03 <- "CCG Expected Hospitalization (per 1,000) for General Hospitalization (A) and Critical Care (B). England"
 plot_title_s04 <- "CCG Excess Need for Hospital Beds (per 1,000) in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B). England"
-plot_title_s05 <- "Local Expected Hospitalizatoin (per 1,000) in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B) and Local Hospital Capacity. Wales"
+plot_title_s05 <- "Local Expected Hospitalization (per 1,000) in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B) and Local Hospital Capacity. Wales"
 plot_title_s06 <- "CCG Excess Need for Hospital Beds (per 1,000) in Case of a 10% Nationwide Infection for General Hospitalization (A) and Critical Care (B). England"
 
 
-save(caption, plot_title1, plot_title2, plot_title3, plot_title4, plot_title5,
-     plot_title6, plot_title7, plot_title8, plot_title9, plot_title10, 
+save(caption, 
+     plot_title_01, plot_title_02, plot_title_03, plot_title_04, plot_title_05, 
+     plot_title_s01, plot_title_s02, plot_title_s03, plot_title_s04,
+     plot_title_s05, plot_title_s06,
      file = "data/for graphs/labs.rda")
 
 # -- Plot 1
