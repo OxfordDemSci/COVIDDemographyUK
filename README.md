@@ -7,6 +7,7 @@ Interdisciplinary Centre on Population Dynamics, University of Southern Denmark
 
 March 20th, 2020
 
+[![DOI](https://zenodo.org/badge/195251200.svg)](https://zenodo.org/badge/latestdoi/195251200)
 
 ### Introduction
 
