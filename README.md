@@ -1,7 +1,7 @@
 # Data and code for "Mapping hospital demand: demographics, spatial variation, and the risk of 'hospital deserts' during COVID-19 in England and Wales"
 Mark D. Verhagen, David M. Brazel, Jennifer Beam Dowd, Ilya Kashnitsky, Melinda C. Mills
 
-Leverhume center for Demographic Research, University of Oxford \& Nuffield College
+Leverhulme center for Demographic Research, University of Oxford \& Nuffield College
 
 Interdisciplinary Centre on Population Dynamics, University of Southern Denmark
 
