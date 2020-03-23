@@ -770,16 +770,19 @@ ggsave(filename = "figs_paper/fig-s06.pdf",
        fig_s06,
        width = 10, height = 7)
 
-# Excess demand LSOA Manchester
+
+# Excess demand LSOA Manchester -------------------------------------------
+
+pal <- RColorBrewer::brewer.pal(11, "BrBG")[c(11,3)]
+
 agg_lsoa_manchester %>% 
   ggplot() + 
   geom_sf(color = NA)+
   geom_sf(aes(fill = pc_hosp), color = NA)+
   coord_sf(datum = NA)+
-  scale_size_area("Beds", max_size = 10)+
   scale_color_manual(NULL, values = pal, guide = NULL)+
   scale_fill_fermenter(
-    "Cases per\n1,000",
+    "Hosp. per\n1,000",
     palette = 'PuBuGn', direction = 1
   ) + 
   own_theme +
@@ -789,7 +792,58 @@ agg_lsoa_manchester %>%
 manchester_demand <- last_plot()
 
 ggsave(
-  filename = "figs-upd/manchester_demand.pdf",
+  filename = "figs/manchester_demand.pdf",
   manchester_demand,
   width = 10, height = 7
   )
+
+
+# Manchester with roads background -- Stamen Toner ------------------------
+
+
+library(ggmap)
+
+
+bbox <- make_bbox(agg_lsoa_manchester %>% st_coordinates)
+
+bgstamen <-
+  get_stamenmap(
+    bbox = c(
+      left = -2.75,
+      right = -1.9,
+      bottom = 53.3,
+      top = 53.7
+    ),
+    zoom = 11,
+    maptype = "toner"
+  ) 
+
+foo <- bgstamen %>% 
+  ms_clip(
+    agg_lsoa_manchester %>% ms_dissolve()
+  )
+
+bgstamen %>% 
+  ggmap() +
+  geom_sf(data = agg_lsoa_manchester,
+          aes(fill = pc_hosp), 
+          color = NA, alpha = .85, 
+          inherit.aes = FALSE)+ # the hack to make geom_sf work with ggmap
+  coord_sf(datum = NA)+
+  scale_color_manual(NULL, values = pal, guide = NULL)+
+  scale_fill_fermenter(
+    "Hosp. per\n1,000",
+    palette = 'PuBuGn', direction = 1
+  ) + 
+  own_theme +
+  theme(legend.position = "right")+
+  labs(title = "Greater Manchester Local Differences in Hospitalization Need" %>% str_wrap(70))
+
+manchester_demand_toner <- last_plot()
+
+ggsave(
+  filename = "figs/manchester-toner.pdf",
+  manchester_demand_toner,
+  width = 10, height = 7
+)
+

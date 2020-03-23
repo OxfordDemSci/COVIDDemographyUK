@@ -156,6 +156,7 @@ agg_lsoa_manchester <- agg_lsoa_shape %>%
   st_as_sf() %>% 
   ms_simplify(keep = .01)
 
+
 # cities
 cities <- maps::world.cities %>% 
   dplyr::filter(
