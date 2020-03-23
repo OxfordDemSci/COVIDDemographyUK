@@ -48,6 +48,7 @@ own_plot_grid <- function(a, b, title, ...) {
 load("data/for graphs/ready.rda")
 load("data/for graphs/labs.rda")
 
+load("data/for graphs/manchester.rda")
 
 # Fig 1 ------------------------------------------------------------
 
@@ -768,3 +769,27 @@ fig_s06 <- own_plot_grid(
 ggsave(filename = "figs_paper/fig-s06.pdf", 
        fig_s06,
        width = 10, height = 7)
+
+# Excess demand LSOA Manchester
+agg_lsoa_manchester %>% 
+  ggplot() + 
+  geom_sf(color = NA)+
+  geom_sf(aes(fill = pc_hosp), color = NA)+
+  coord_sf(datum = NA)+
+  scale_size_area("Beds", max_size = 10)+
+  scale_color_manual(NULL, values = pal, guide = NULL)+
+  scale_fill_fermenter(
+    "Cases per\n1,000",
+    palette = 'PuBuGn', direction = 1
+  ) + 
+  own_theme +
+  theme(legend.position = c(.05, .15))+
+  labs(title = "Greater Manchester Local Differences in Hospitalization Need" %>% str_wrap(70))
+
+manchester_demand <- last_plot()
+
+ggsave(
+  filename = "figs-upd/manchester_demand.pdf",
+  manchester_demand,
+  width = 10, height = 7
+  )

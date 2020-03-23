@@ -149,6 +149,13 @@ agg_lsoa_s_5 <- agg_lsoa_shape %>%
   st_as_sf() %>% 
   ms_simplify(keep = .01)
 
+agg_lsoa_manchester <- agg_lsoa_shape %>% 
+  filter(
+    NAME == "Greater Manchester"
+  ) %>% 
+  st_as_sf() %>% 
+  ms_simplify(keep = .01)
+
 # cities
 cities <- maps::world.cities %>% 
   dplyr::filter(
