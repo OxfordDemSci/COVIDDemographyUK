@@ -14,6 +14,7 @@ library(tidyverse)
 library(sf)
 library(rmapshaper)
 library(maptools)
+library(osmdata)
 
 ## --- Functions --- ##
 create_map_stats <- function(df) {
@@ -220,54 +221,22 @@ save(caption,
      plot_title_s05, plot_title_s06,
      file = "data/for graphs/labs.rda")
 
-# -- Plot 1
-## Can you include the wales_df sf to the agg_region_shape one? I can't get is to work
-# data: agg_region_shape
-# Left panel: pc_capacity
-# Right panel: pc_capacity_acute
-# plot / indicate individual cities: Liverpool (53.4084, 2.9916), Birmingham (52.4862, 1.8904),
-# Manchester (53.4808, 2.2426), Newcastle (54.9783, 1.6178), London (51.5074, 0.1278)
-
-# -- Plot 2
-# data: agg_ccounty_shape
-# Left panel: pc_capacity
-# Right panel: pc_capacity_acute
-# plot / indicate above cities
-
-# -- Plot 3
-# data: agg_ccounty_shape
-# Left panel: pc_hosp
-# Right panel: pc_hosp_acute
-# plot / indicate above cities
-
-# -- Plot 4
-# data: agg_ccounty_shape
-# Left panel: abs_excess_demand_hosp
-# Right panel: abs_excess_demand_hosp_acute
-# plot / indicate above cities
-
-# -- Plot 5
-# data: agg_lsoa_shape subsetted by Wales counties
-# agg_lsoa_shape[grepl("Powys|Gwent|Glamorgan|Dyfed|Gwynedd|Clwyd", agg_lsoa_shape$NAME), ])
-# Left panel: pc_hosp
-# Right panel: pc_hosp_acute
-# read.csv("data/wales_bed_data/nhs_wales_facilities_geocoded_cleaned.csv")
-# plot / indicate hospitals
-
-# -- Plot 6
-# data: agg_ccounty_shape
-# Left panel: tipping_point_capacity
-# Right panel: tipping_point_capacity_acute
-# plot / indicate cities
-
-# -- Plot 7
-# data: agg_lsoa_shape
-# Main figure: pc_hosp
-# zoombox for two areas: Harrow 001C, Newham 013G (areacodes E01033583 and E01002225)
-# readRDS("data/for graphs/london_highlight.rds")
-
-# -- Plot 8
-# data: agg_ccount_shape
-# new variable: pop divided by area? 
 
 
+# get OSM hospitals -------------------------------------------------------
+
+library(osmdata)
+
+#building the query
+q <- getbb("Greater Manchester") %>%
+  opq() %>%
+  add_osm_feature("amenity", "hospital")
+
+str(q) #query structure
+
+hospitals_manchester <- osmdata_sf(q)
+
+hospitals_manchester$osm_polygons %>% 
+  drop_na(healthcare) %>% 
+  ggplot()+
+  geom_sf()

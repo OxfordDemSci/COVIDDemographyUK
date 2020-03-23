@@ -5,6 +5,7 @@
 #===============================================================================
 
 library(tidyverse)
+library(magrittr)
 library(sf)
 library(patchwork)
 # theming packages
@@ -800,30 +801,46 @@ ggsave(
 
 # Manchester with roads background -- Stamen Toner ------------------------
 
-
+library(osmdata)
 library(ggmap)
 
+# # manual input of the bounding box -- iteration 1
+# bgstamen_manchester <-
+#   get_stamenmap(
+#     bbox = c(
+#       left = -2.75,
+#       right = -1.9,
+#       bottom = 53.33,
+#       top = 53.69
+#     ),
+#     zoom = 11,
+#     maptype = "toner-lines"
+#   ) 
+# 
+# # produce bbox manually -- iteration 2
+# bbox_manchester <- agg_lsoa_manchester %>% 
+#   st_bbox() %>% 
+#   set_names(c("left", "bottom", "right", "top")) %>% 
+#   as_vector()
+#   
+# # download
+# bgstamen_manchester <-
+#   get_stamenmap(
+#     bbox = bbox_manchester,
+#     zoom = 11,
+#     maptype = "toner-lines"
+#   ) 
 
-bbox <- make_bbox(agg_lsoa_manchester %>% st_coordinates)
 
-bgstamen <-
-  get_stamenmap(
-    bbox = c(
-      left = -2.75,
-      right = -1.9,
-      bottom = 53.3,
-      top = 53.7
-    ),
-    zoom = 11,
-    maptype = "toner"
-  ) 
+# automate all of the above uson osmdata::getbb -- the way to go
+bgstamen_manchester <- get_stamenmap(
+  getbb("Greater Manchester"), 
+  maptype = "toner-lines",
+  zoom = 11
+)
 
-foo <- bgstamen %>% 
-  ms_clip(
-    agg_lsoa_manchester %>% ms_dissolve()
-  )
 
-bgstamen %>% 
+bgstamen_manchester %>% 
   ggmap() +
   geom_sf(data = agg_lsoa_manchester,
           aes(fill = pc_hosp), 
@@ -836,7 +853,10 @@ bgstamen %>%
     palette = 'PuBuGn', direction = 1
   ) + 
   own_theme +
-  theme(legend.position = "right")+
+  theme(legend.position = c(.01,.01),
+        legend.justification = c(0,0),
+        legend.background = element_rect(fill = "#ffffff", color = NA),
+        legend.key.size = unit(2,  "lines"))+
   labs(title = "Greater Manchester Local Differences in Hospitalization Need" %>% str_wrap(70))
 
 manchester_demand_toner <- last_plot()
@@ -846,4 +866,62 @@ ggsave(
   manchester_demand_toner,
   width = 10, height = 7
 )
+
+
+
+# plots -- PLAN -----------------------------------------------------------
+
+
+# -- Plot 1
+## Can you include the wales_df sf to the agg_region_shape one? I can't get is to work
+# data: agg_region_shape
+# Left panel: pc_capacity
+# Right panel: pc_capacity_acute
+# plot / indicate individual cities: Liverpool (53.4084, 2.9916), Birmingham (52.4862, 1.8904),
+# Manchester (53.4808, 2.2426), Newcastle (54.9783, 1.6178), London (51.5074, 0.1278)
+
+# -- Plot 2
+# data: agg_ccounty_shape
+# Left panel: pc_capacity
+# Right panel: pc_capacity_acute
+# plot / indicate above cities
+
+# -- Plot 3
+# data: agg_ccounty_shape
+# Left panel: pc_hosp
+# Right panel: pc_hosp_acute
+# plot / indicate above cities
+
+# -- Plot 4
+# data: agg_ccounty_shape
+# Left panel: abs_excess_demand_hosp
+# Right panel: abs_excess_demand_hosp_acute
+# plot / indicate above cities
+
+# -- Plot 5
+# data: agg_lsoa_shape subsetted by Wales counties
+# agg_lsoa_shape[grepl("Powys|Gwent|Glamorgan|Dyfed|Gwynedd|Clwyd", agg_lsoa_shape$NAME), ])
+# Left panel: pc_hosp
+# Right panel: pc_hosp_acute
+# read.csv("data/wales_bed_data/nhs_wales_facilities_geocoded_cleaned.csv")
+# plot / indicate hospitals
+
+# -- Plot 6
+# data: agg_ccounty_shape
+# Left panel: tipping_point_capacity
+# Right panel: tipping_point_capacity_acute
+# plot / indicate cities
+
+# -- Plot 7
+# data: agg_lsoa_shape
+# Main figure: pc_hosp
+# zoombox for two areas: Harrow 001C, Newham 013G (areacodes E01033583 and E01002225)
+# readRDS("data/for graphs/london_highlight.rds")
+
+# -- Plot 8
+# data: agg_ccount_shape
+# new variable: pop divided by area? 
+
+
+
 
