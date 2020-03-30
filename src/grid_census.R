@@ -53,7 +53,7 @@ for (i_par in c(0.5, 1, 2)) {
     left_join(lsoa_census, by = "AreaCodes") %>%
     rename_arcgis_lsoa()
     
-  st_write(sp::merge(lsoa_df, lsoa_shape, by="AreaCodes"),
+  st_write(sp::merge(lsoa_df, lsoa_shape[, c("AreaCodes", "geometry")], by="AreaCodes"),
            paste0("data/final/grid/", "lsoa_df_", i_par, "_None.geojson"),
            delete_dsn=TRUE)
   
@@ -78,11 +78,9 @@ for (i_par in c(0.5, 1, 2)) {
       create_map_stats() %>%
       rename_arcgis_ccg()
     
-    st_write(sp::merge(CCG_df, ccg_shape, by="CCG19CD"),
+    st_write(sp::merge(CCG_df, ccg_shape[, c("CCG19CD", "geometry")], by="CCG19CD"),
              paste0("data/final/grid/", "ccg_df_", i_par, "_", c_par, ".geojson"),
              delete_dsn=TRUE)
   }
 }
-
-
 
