@@ -1,0 +1,13 @@
+name: DEM_SCI_COVID19_OXFORD
+title: DEM_SCI_COVID19_OXFORD
+username:
+account: markdverhagen
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2241109
+bundleId: 3103601
+url: https://markdverhagen.shinyapps.io/DEM_SCI_COVID19_OXFORD/
+when: 1588631011.49691
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: helpers.R|data/.DS_Store
