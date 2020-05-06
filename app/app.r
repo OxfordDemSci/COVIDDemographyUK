@@ -19,6 +19,9 @@ library(tidyverse)
 library(reshape2)
 library(leaflet)
 
+options_zoom <- c(paste("County", unique(cw_lsoa_ccounty$NAME)[-2]), as.character(sort(unique(cw_lsoa_CCG$CCG19NM))))
+cw_lsoa_ccounty$NAME[grepl("London", cw_lsoa_ccounty$NAME)] <- "Greater London"
+
 # Define UI ----
 ui <- navbarPage("DemSci COVID-19 Geo Risk Tracker",
     tabPanel("Main page",
@@ -34,29 +37,32 @@ ui <- navbarPage("DemSci COVID-19 Geo Risk Tracker",
           p("Age-specific hospitalization rates as calculated by Ferguson et al. (2020). Default values assume a 10% infection rate across all age groups and geographies."),
           p("For a discussion of the methodology, see the paper at:"), tags$a(href="https://osf.io/g8s96/", "Paper DOI")),
         mainPanel(
-          fluidRow(
-            
-            column(6, h3("England & Wales Risk Map"),
-                   p("Various risk measures and hospital capacity measures can be evaluated for England & Wales. User can also specify which geography to show: the Adminstrative Region, Ceremonial County or Clinical Commisioning Group."),
-                   selectInput("main_geo", "Geography", choices = c("Region", "Ceremonial County", "Clinical Commisioning Group")),
-                   selectInput("main_var", "Measure", choices = c("Hospitalization per 1,000", "Hospital bed capacity")),
-                   leafletOutput("main", height=700, width = "100%")),
-            column(6, h3("Regional comparison on LSOA level"),
-                   p("To zoom in on specific regions, either a Ceremonial County or Clinical Commisioning Group can be selected to view risk measures at the granular LSOA level."),
-                   selectInput("z1", "Choose CCG to zoom-in",
-                               sort(unique(cw_lsoa_CCG$CCG19NM)),
-                               selected=sort(unique(cw_lsoa_CCG$CCG19NM))[1]),
-                   br(),
-                   leafletOutput("z1_map", height=300, width = "70%"),
-                   selectInput("z2", "Choose CCG to zoom-in",
-                               sort(unique(cw_lsoa_CCG$CCG19NM)),
-                               selected=sort(unique(cw_lsoa_CCG$CCG19NM))[2]),
-                   br(),
-                   leafletOutput("z2_map", height=300, width = "70%"),
-                   ))
+          tabsetPanel(
+            tabPanel("England & Wales Risk Map",
+              fluidRow(
+                column(12, h3("England & Wales Risk Map"),
+                       p("Various risk measures and hospital capacity measures can be evaluated for England & Wales. User can also specify which geography to show: the Adminstrative Region, Ceremonial County or Clinical Commisioning Group."))),
+              fluidRow(column(6, selectInput("main_geo", "Geography", choices = c("Region", "Ceremonial County", "Clinical Commisioning Group"))),
+                       column(6, selectInput("main_var", "Measure", choices = c("Hospitalization per 1,000", "Hospital bed capacity")))),
+              br(),
+              fluidRow(column(1, p("")), column(10, leafletOutput("main", height=700, width = "100%")))),
+            tabPanel("Regional comparison on LSOA level",
+              fluidRow(
+                column(12, h3("Regional comparison on LSOA level"),
+                       p("To zoom in on specific regions, either a Ceremonial County or Clinical Commisioning Group can be selected to view risk measures at the granular LSOA level."))),
+              br(),
+              fluidRow(column(6, selectInput("z1", "Choose Region to zoom-in", options_zoom,
+                                             selected=options_zoom[1])),
+                       column(6, selectInput("z2", "Choose Region to zoom-in",
+                                              options_zoom, selected=options_zoom[2]))),
+              fluidRow(column(6, leafletOutput("z1_map", height=500)),
+                       column(6, leafletOutput("z2_map", height=500))),
+                )),
+          br(),
+          br()
+          
           #             ,
           # h3("LSOA Level"),
-,
           # 
           # leafletOutput("z2_map", height=550, width = 550),
         )
@@ -64,7 +70,7 @@ ui <- navbarPage("DemSci COVID-19 Geo Risk Tracker",
     ),
     tabPanel("Age-specific rates",
              sidebarLayout(
-               sidebarPanel(
+               sidebarPanel(width=2,
                  h3("Age-specific infection and hositalization rates"),
                  p("Given that our knowledge regarding COVID-19 is rapidly evolving, we include the possibility for users to input custom rates per age group. The default values are set to an infection rate of 10% and hospitalization rates as calculated by Ferguson et al. (2020)."),
                  br(),
@@ -136,25 +142,30 @@ ui <- navbarPage("DemSci COVID-19 Geo Risk Tracker",
                              numericInput("hosp_90p", NULL,
                                           min = 0, max = 1, value=0.273))),
                mainPanel(
-                 fluidRow(
-                   
-                   column(6, h3("England & Wales Risk Map"),
-                          p("Various risk measures and hospital capacity measures can be evaluated for England & Wales using custom rates. User can also specify which geography to show: the Adminstrative Region, Ceremonial County or Clinical Commisioning Group."),
-                          selectInput("main_geo_custom", "Geography", choices = c("Region", "Ceremonial County", "Clinical Commisioning Group")),
-                          leafletOutput("main_custom", height=700, width = "100%")),
-                   column(6, h3("Regional comparison on LSOA level"),
-                          p("To zoom in on specific regions, either a Ceremonial County or Clinical Commisioning Group can be selected to view risk measures using custom rates at the granular LSOA level."),
-                          selectInput("z1", "Choose CCG to zoom-in",
-                                      sort(unique(cw_lsoa_CCG$CCG19NM)),
-                                      selected=sort(unique(cw_lsoa_CCG$CCG19NM))[1]),
-                          br(),
-                          leafletOutput("z1_map_custom", height=300, width = "70%"),
-                          selectInput("z2", "Choose CCG to zoom-in",
-                                      sort(unique(cw_lsoa_CCG$CCG19NM)),
-                                      selected=sort(unique(cw_lsoa_CCG$CCG19NM))[2]),
-                          br(),
-                          leafletOutput("z2_map_custom", height=300, width = "70%"),
-                   ))
+                 tabsetPanel(
+                   tabPanel("England & Wales Risk Map",
+                            fluidRow(
+                              column(12, h3("England & Wales Risk Map"),
+                                     p("Various risk measures and hospital capacity measures can be evaluated for England & Wales. User can also specify which geography to show: the Adminstrative Region, Ceremonial County or Clinical Commisioning Group."))),
+                            fluidRow(column(6, selectInput("main_geo_custom", "Geography", choices = c("Region", "Ceremonial County", "Clinical Commisioning Group"))),
+                                     column(6, selectInput("main_var_custom", "Measure", choices = c("Hospitalization per 1,000", "Hospital bed capacity")))),
+                            br(),
+                            br(),
+                            fluidRow(column(1, p("")), column(10, leafletOutput("main_custom", height=700, width = "100%")))),
+                   tabPanel("Regional comparison on LSOA level",
+                            fluidRow(
+                              column(12, h3("Regional comparison on LSOA level"),
+                                     p("To zoom in on specific regions, either a Ceremonial County or Clinical Commisioning Group can be selected to view risk measures at the granular LSOA level."))),
+                            br(),
+                            fluidRow(column(6, selectInput("z1_custom", "Choose Region to zoom-in", options_zoom,
+                                                           selected=options_zoom[1])),
+                                     column(6, selectInput("z2_custom", "Choose Region to zoom-in",
+                                                           options_zoom, selected=options_zoom[2]))),
+                            fluidRow(column(6, leafletOutput("z1_map_custom", height=500)),
+                                     column(6, leafletOutput("z2_map_custom", height=500))),
+                   )),
+                 br(),
+                 br()
                )
              )
            ),
@@ -169,24 +180,30 @@ ui <- navbarPage("DemSci COVID-19 Geo Risk Tracker",
                                                                            "Proportion Black", "Proportion Asian", "Population density")),
                             plotOutput("bi_legend", width="100%")),
                mainPanel(
-                 fluidRow(
-                   column(6, h3("England & Wales Risk Map"),
-                          p("Various risk measures and hospital capacity measures can be evaluated for England & Wales using custom rates. User can also specify which geography to show: the Adminstrative Region, Ceremonial County or Clinical Commisioning Group."),
-                          selectInput("main_geo_bi", "Geography", choices = c("Ceremonial County", "Clinical Commisioning Group")),
-                          leafletOutput("main_bi", height=700, width = "100%")),
-                   column(6, h3("Regional comparison on LSOA level"),
-                          p("To zoom in on specific regions, either a Ceremonial County or Clinical Commisioning Group can be selected to view risk measures using custom rates at the granular LSOA level."),
-                          selectInput("z1_bi", "Choose CCG to zoom-in",
-                                      sort(unique(cw_lsoa_CCG$CCG19NM)),
-                                      selected=sort(unique(cw_lsoa_CCG$CCG19NM))[1]),
-                          br(),
-                          leafletOutput("z1_map_bi", height=300, width = "70%"),
-                          selectInput("z2_bi", "Choose CCG to zoom-in",
-                                      sort(unique(cw_lsoa_CCG$CCG19NM)),
-                                      selected=sort(unique(cw_lsoa_CCG$CCG19NM))[2]),
-                          br(),
-                          leafletOutput("z2_map_bi", height=300, width = "70%"),
-                   ))
+                 tabsetPanel(
+                   tabPanel("England & Wales Risk Map",
+                            fluidRow(
+                              column(12, h3("England & Wales Risk Map"),
+                                     p("Various risk measures and hospital capacity measures can be evaluated for England & Wales. User can also specify which geography to show: the Adminstrative Region, Ceremonial County or Clinical Commisioning Group."))),
+                            fluidRow(column(6, selectInput("main_geo_custom", "Geography", choices = c("Region", "Ceremonial County", "Clinical Commisioning Group"))),
+                                     column(6, selectInput("main_var_custom", "Measure", choices = c("Hospitalization per 1,000", "Hospital bed capacity")))),
+                            br(),
+                            br(),
+                            fluidRow(column(1, p("")), column(10, leafletOutput("main_bi", height=700, width = "100%")))),
+                   tabPanel("Regional comparison on LSOA level",
+                            fluidRow(
+                              column(12, h3("Regional comparison on LSOA level"),
+                                     p("To zoom in on specific regions, either a Ceremonial County or Clinical Commisioning Group can be selected to view risk measures at the granular LSOA level."))),
+                            br(),
+                            fluidRow(column(6, selectInput("z1_bi", "Choose Region to zoom-in", options_zoom,
+                                                           selected=options_zoom[1])),
+                                     column(6, selectInput("z2_bi", "Choose Region to zoom-in",
+                                                           options_zoom, selected=options_zoom[2]))),
+                            fluidRow(column(6, leafletOutput("z1_map_bi", height=500)),
+                                     column(6, leafletOutput("z2_map_bi", height=500))),
+                   )),
+                 br(),
+                 br()
                ))),
     tabPanel("About",
              sidebarLayout(
@@ -330,8 +347,14 @@ server <- function(input, output) {
   
   zoom1 <- reactive({
     lsoa <- lsoa()
-    lsoa_rel <- cw_lsoa_CCG %>%
-      filter(CCG19NM == input$z1)
+    if (grepl("County ", input$z1)) {
+      lsoa_rel <- cw_lsoa_ccounty %>%
+        filter(NAME == gsub("County ", "", input$z1))
+    } else {
+      lsoa_rel <- cw_lsoa_CCG %>%
+        filter(CCG19NM == input$z1)  
+    }
+    
     z1 <- lsoa %>%
       filter(AreaCodes %in% lsoa_rel$LSOA11CD)
     z1_shape <- agg_lsoa_shape %>%
@@ -345,8 +368,13 @@ server <- function(input, output) {
   
   zoom1_custom <- reactive({
     lsoa <- lsoa_custom()
-    lsoa_rel <- cw_lsoa_CCG %>%
-      filter(CCG19NM == input$z1)
+    if (grepl("County ", input$z1_custom)) {
+      lsoa_rel <- cw_lsoa_ccounty %>%
+        filter(NAME == gsub("County ", "", input$z1_custom))
+    } else {
+      lsoa_rel <- cw_lsoa_CCG %>%
+        filter(CCG19NM == input$z1_custom)  
+    }
     z1 <- lsoa %>%
       filter(AreaCodes %in% lsoa_rel$LSOA11CD)
     z1_shape <- agg_lsoa_shape %>%
@@ -360,8 +388,13 @@ server <- function(input, output) {
 
   zoom2 <- reactive({
     lsoa <- lsoa()
-    lsoa_rel <- cw_lsoa_CCG %>%
-      filter(CCG19NM == input$z2)
+    if (grepl("County ", input$z2)) {
+      lsoa_rel <- cw_lsoa_ccounty %>%
+        filter(NAME == gsub("County ", "", input$z2))
+    } else {
+      lsoa_rel <- cw_lsoa_CCG %>%
+        filter(CCG19NM == input$z2)  
+    }
     z2 <- lsoa %>%
       filter(AreaCodes %in% lsoa_rel$LSOA11CD)
     z2_shape <- agg_lsoa_shape %>%
@@ -375,8 +408,13 @@ server <- function(input, output) {
 
   zoom2_custom <- reactive({
     lsoa <- lsoa_custom()
-    lsoa_rel <- cw_lsoa_CCG %>%
-      filter(CCG19NM == input$z2)
+    if (grepl("County ", input$z2_custom)) {
+      lsoa_rel <- cw_lsoa_ccounty %>%
+        filter(NAME == gsub("County ", "", input$z2_custom))
+    } else {
+      lsoa_rel <- cw_lsoa_CCG %>%
+        filter(CCG19NM == input$z2_custom)  
+    }
     z2 <- lsoa %>%
       filter(AreaCodes %in% lsoa_rel$LSOA11CD)
     z2_shape <- agg_lsoa_shape %>%
@@ -442,7 +480,7 @@ server <- function(input, output) {
     leaflet(z1) %>%
       addProviderTiles(providers$CartoDB.Positron) %>%
       setView(lat = mean(loc$Y), lng = mean(loc$X), zoom=9) %>%
-      addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+      addPolygons(color = "#444444", weight = 0.2, smoothFactor = 0.5,
                   opacity = 1.0, fillOpacity=0.5,
                   fillColor = ~colorQuantile("YlOrRd", pc_hosp)(pc_hosp),
                   label=mytext)
@@ -464,7 +502,7 @@ server <- function(input, output) {
     leaflet(z2) %>%
       addProviderTiles(providers$CartoDB.Positron) %>%
       setView(lat = mean(loc$Y), lng = mean(loc$X), zoom=9) %>%
-      addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+      addPolygons(color = "#444444", weight = 0.2, smoothFactor = 0.5,
                   opacity = 1.0, fillOpacity=0.5,
                   fillColor = ~colorQuantile("YlOrRd", pc_hosp)(pc_hosp),
                   label=mytext)
@@ -522,7 +560,7 @@ server <- function(input, output) {
     leaflet(z1) %>%
       addProviderTiles(providers$CartoDB.Positron) %>%
       setView(lat = mean(loc$Y), lng = mean(loc$X), zoom=9) %>%
-      addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+      addPolygons(color = "#444444", weight = 0.2, smoothFactor = 0.5,
                   opacity = 1.0, fillOpacity=0.5,
                   fillColor = ~colorQuantile("YlOrRd", pc_hosp)(pc_hosp),
                   label=mytext)
@@ -544,7 +582,7 @@ server <- function(input, output) {
     leaflet(z2) %>%
       addProviderTiles(providers$CartoDB.Positron) %>%
       setView(lat = mean(loc$Y), lng = mean(loc$X), zoom=9) %>%
-      addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+      addPolygons(color = "#444444", weight = 0.2, smoothFactor = 0.5,
                   opacity = 1.0, fillOpacity=0.5,
                   fillColor = ~colorQuantile("YlOrRd", pc_hosp)(pc_hosp),
                   label=mytext)
@@ -638,6 +676,15 @@ server <- function(input, output) {
       sp::merge(LSOA_eco_vars, by.x="AreaCodes", by.y="LSOA") %>%
       sf::st_as_sf() %>%
       sf::st_transform(crs="+init=epsg:4326")
+    if (grepl("County ", input$z1_bi)) {
+      lsoa_rel <- cw_lsoa_ccounty %>%
+        filter(NAME == gsub("County ", "", input$z1_bi))
+    } else {
+      lsoa_rel <- cw_lsoa_CCG %>%
+        filter(CCG19NM == input$z1_bi)  
+    }
+    z1 <- z1 %>%
+      filter(AreaCodes %in% lsoa_rel$LSOA11CD)
 
     eco_depriv <- biscale::bi_class(z1, x=pc_hosp, y=depriv)
     eco_dens <- biscale::bi_class(z1, x=pc_hosp, y=dens)
@@ -696,7 +743,7 @@ server <- function(input, output) {
       addProviderTiles(providers$CartoDB.Positron) %>%
       setView(lat = mean(loc$Y), lng = mean(loc$X), zoom=9) %>%
       addPolygons(
-        color = "#444444", weight = 1, smoothFactor = 0.5,
+        color = "#444444", weight = 0.2, smoothFactor = 0.5,
         opacity = 1.0,
         group = "Eco",
         fillColor = ~pal(bi_class),
@@ -709,6 +756,15 @@ server <- function(input, output) {
       sp::merge(LSOA_eco_vars, by.x="AreaCodes", by.y="LSOA") %>%
       sf::st_as_sf() %>%
       sf::st_transform(crs="+init=epsg:4326")
+    if (grepl("County ", input$z2_bi)) {
+      lsoa_rel <- cw_lsoa_ccounty %>%
+        filter(NAME == gsub("County ", "", input$z2_bi))
+    } else {
+      lsoa_rel <- cw_lsoa_CCG %>%
+        filter(CCG19NM == input$z2_bi)  
+    }
+    z2 <- z2 %>%
+      filter(AreaCodes %in% lsoa_rel$LSOA11CD)
     
     eco_depriv <- biscale::bi_class(z2, x=pc_hosp, y=depriv)
     eco_dens <- biscale::bi_class(z2, x=pc_hosp, y=dens)
@@ -767,7 +823,7 @@ server <- function(input, output) {
       addProviderTiles(providers$CartoDB.Positron) %>%
       setView(lat = mean(loc$Y), lng = mean(loc$X), zoom=9) %>%
       addPolygons(
-        color = "#444444", weight = 1, smoothFactor = 0.5,
+        color = "#444444", weight = 0.2, smoothFactor = 0.5,
         opacity = 1.0,
         group = "Eco",
         fillColor = ~pal(bi_class),
