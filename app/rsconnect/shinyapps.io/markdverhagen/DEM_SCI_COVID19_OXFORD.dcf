@@ -5,9 +5,9 @@ account: markdverhagen
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2241109
-bundleId: 3106957
+bundleId: 3110393
 url: https://markdverhagen.shinyapps.io/DEM_SCI_COVID19_OXFORD/
-when: 1588697682.75627
+when: 1588761325.77306
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: helpers.R

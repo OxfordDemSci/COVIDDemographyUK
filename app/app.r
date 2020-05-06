@@ -2,13 +2,16 @@ rm(list = ls())
 
 source("app_functions.R")
 load("data/app.rda")
+load("data/eco_vars.rda")
+
 # load("app/data/graphing.rda")
 # load("app/data/cw_app.rda")
-# load("data/hosp.rda")
-# save(uk_wide, uk, rates, cw_lsoa_CCG, cw_lsoa_ccounty, hospital_ccounty, agg_region_s, agg_ccounty_s, file="app/data/app.rda")
+load("data/hosp.rda")
+# save(uk_wide, uk, rates, cw_lsoa_CCG, cw_lsoa_ccounty, hospital_ccounty, agg_region_s, agg_ccg_s,
+#      agg_ccounty_s, cw_lda_region, file="app/data/app.rda")
 agg_lsoa_shape <- sf::st_read("data/LSOA_complex_alldata_final_simplified.geojson")
 
-packages <- c("tidyverse", "magrittr", "sf", "reshape2", "readxl")
+packages <- c("tidyverse", "magrittr", "sf", "reshape2", "readxl", "biscale", "cowplot")
 lapply(packages, require, character.only = TRUE)
 
 library(shiny)
@@ -35,8 +38,8 @@ ui <- navbarPage("DemSci COVID-19 Geo Risk Tracker",
             
             column(6, h3("England & Wales Risk Map"),
                    p("Various risk measures and hospital capacity measures can be evaluated for England & Wales. User can also specify which geography to show: the Adminstrative Region, Ceremonial County or Clinical Commisioning Group."),
-                   splitLayout(cellWidths = c("50%", "50%"), selectInput("main_geo", "Geography", choices = c("Region", "Ceremonial County", "Clinical Commisioning Group")),
-                               selectInput("main_var", "Measure", choices = c("Hospitalization per 1,000", "Hospital bed capacity"))),
+                   selectInput("main_geo", "Geography", choices = c("Region", "Ceremonial County", "Clinical Commisioning Group")),
+                   selectInput("main_var", "Measure", choices = c("Hospitalization per 1,000", "Hospital bed capacity")),
                    leafletOutput("main", height=700, width = "100%")),
             column(6, h3("Regional comparison on LSOA level"),
                    p("To zoom in on specific regions, either a Ceremonial County or Clinical Commisioning Group can be selected to view risk measures at the granular LSOA level."),
@@ -162,8 +165,29 @@ ui <- navbarPage("DemSci COVID-19 Geo Risk Tracker",
                             p("In addition to age-based differentials in risk, a number of additional potential risk factors have been identified among which social deprivation and ethnic background. In order to give a graphical presentation of both age-based risk measures in addition to these typess of risk factors, we include bivariate risk maps. These include age-based risk on one axis and some ecological variable on the other. Due to the complexity of generating bivariate colourmaps, we restrict both variables to three levels, leading to nine categories in total."),
                             h5("Ecological variables"),
                             p("Currently, three ecological measures are supported: social deprivation (IoD2019), the proportion of citizens from Black or Asian descent (ONS, 2011) and the population density (ONS, 2018)."),
-                            selectInput("eco_var", "Measure:", choices = c("Social Deprivation", "Percentage Black or Asian", "Population density"))),
-               mainPanel())),
+                            selectInput("eco_var", "Measure:", choices = c("Social deprivation", "Proportion Black or Asian",
+                                                                           "Proportion Black", "Proportion Asian", "Population density")),
+                            plotOutput("bi_legend", width="100%")),
+               mainPanel(
+                 fluidRow(
+                   column(6, h3("England & Wales Risk Map"),
+                          p("Various risk measures and hospital capacity measures can be evaluated for England & Wales using custom rates. User can also specify which geography to show: the Adminstrative Region, Ceremonial County or Clinical Commisioning Group."),
+                          selectInput("main_geo_bi", "Geography", choices = c("Ceremonial County", "Clinical Commisioning Group")),
+                          leafletOutput("main_bi", height=700, width = "100%")),
+                   column(6, h3("Regional comparison on LSOA level"),
+                          p("To zoom in on specific regions, either a Ceremonial County or Clinical Commisioning Group can be selected to view risk measures using custom rates at the granular LSOA level."),
+                          selectInput("z1_bi", "Choose CCG to zoom-in",
+                                      sort(unique(cw_lsoa_CCG$CCG19NM)),
+                                      selected=sort(unique(cw_lsoa_CCG$CCG19NM))[1]),
+                          br(),
+                          leafletOutput("z1_map_bi", height=300, width = "70%"),
+                          selectInput("z2_bi", "Choose CCG to zoom-in",
+                                      sort(unique(cw_lsoa_CCG$CCG19NM)),
+                                      selected=sort(unique(cw_lsoa_CCG$CCG19NM))[2]),
+                          br(),
+                          leafletOutput("z2_map_bi", height=300, width = "70%"),
+                   ))
+               ))),
     tabPanel("About",
              sidebarLayout(
                sidebarPanel(width=3),
@@ -298,7 +322,7 @@ server <- function(input, output) {
 
   agg_ccg_custom <- reactive({
     ccg <- ccg_custom()
-    agg_ccg_shape <- sp::merge(agg_ccg_s[c("CCG19CD", "geometry")],
+    agg_ccg_shape <- sp::merge(agg_ccg_s[c("CCG19CD", "CCG19NM", "geometry", "general_cap", "acute_cap")],
                                ccg, by="CCG19CD", all.x=T) %>%
       app_create_map_stats()
     return(agg_ccg_shape)
@@ -525,6 +549,255 @@ server <- function(input, output) {
                   fillColor = ~colorQuantile("YlOrRd", pc_hosp)(pc_hosp),
                   label=mytext)
   })
+  
+  ## -- Bivariate
+  
+  output$main_bi <- renderLeaflet({
+    if (length(input$main_geo_bi) == 0) {
+      eco_vars <- CC_eco_vars
+      shape_df <- agg_ccounty() %>%
+        sp::merge(eco_vars, by.x="CCTY19NM", by.y="NAME")
+    } else if (input$main_geo_bi == "Ceremonial County") {
+      eco_vars <- CC_eco_vars
+      shape_df <- agg_ccounty() %>%
+        sp::merge(eco_vars, by.x="CCTY19NM", by.y="NAME")
+    } else if (input$main_geo_bi == "Clinical Commisioning Group") {
+      eco_vars <- CCG_eco_vars
+      shape_df <- agg_ccg() %>%
+        sp::merge(eco_vars, by.x="CCG19NM", by.y="NAME")
+    }
+    
+    eco_depriv <- biscale::bi_class(shape_df, x=pc_hosp, y=depriv)
+    eco_dens <- biscale::bi_class(shape_df, x=pc_hosp, y=dens)
+    eco_eth <- biscale::bi_class(shape_df, x=pc_hosp, y=Risk)
+    eco_black <- biscale::bi_class(shape_df, x=pc_hosp, y=Black)
+    eco_asian <- biscale::bi_class(shape_df, x=pc_hosp, y=Asian)
+
+    pal_depriv <- colorFactor(
+      palette = bi_pal("DkBlue", dim=3, preview=F),
+      domain = factor(as.character(eco_depriv$bi_class), levels=names(bi_pal("DkBlue", dim=3, preview=F))))
+    pal_dens <- colorFactor(
+      palette = bi_pal("Brown", dim=3, preview=F),
+      domain = factor(as.character(eco_dens$bi_class), levels=names(bi_pal("Brown", dim=3, preview=F))))
+    pal_eth <- colorFactor(
+      palette = bi_pal("DkCyan", dim=3, preview=F),
+      domain = factor(as.character(eco_eth$bi_class), levels=names(bi_pal("DkCyan", dim=3, preview=F))))
+    pal_black <- colorFactor(
+      palette = bi_pal("GrPink", dim=3, preview=F),
+      domain = factor(as.character(eco_black$bi_class), levels=names(bi_pal("GrPink", dim=3, preview=F))))
+    pal_asian <- colorFactor(
+      palette = bi_pal("DkViolet", dim=3, preview=F),
+      domain = factor(as.character(eco_asian$bi_class), levels=names(bi_pal("DkBlue", dim=3, preview=F))))
+    
+    if (length(input$eco_var) == 0) {
+      shape_df <- eco_depriv
+      pal <- pal_depriv
+    } else if (input$eco_var == "Social deprivation") {
+      shape_df <- eco_depriv
+      pal <- pal_depriv
+    } else if (input$eco_var == "Population density") {
+      shape_df <- eco_dens
+      pal <- pal_dens
+    } else if (input$eco_var == "Proportion Black or Asian") {
+      shape_df <- eco_eth
+      pal <- pal_eth
+    } else if (input$eco_var == "Proportion Black") {
+      shape_df <- eco_black
+      pal <- pal_black
+    } else if (input$eco_var == "Proportion Asian") {
+      shape_df <- eco_asian
+      pal <- pal_asian
+    }
+    
+    mytext <- paste(
+      "Name", ": <b>", shape_df$Name, 
+      "</b><br/>",
+      "Population", ": <b>", shape_df$pop, 
+      "</b><br/>",
+      "Hospitalizations per 1,000", ": <b>", round(shape_df$pc_hosp, 1), 
+      "</b><br/>",
+      "Hospitcal bed capacity", ": <b>", shape_df$general_cap, 
+      sep="") %>%
+      lapply(htmltools::HTML)
+    
+    leaflet(shape_df %>%
+              sf::st_transform(crs="+init=epsg:4326")) %>%
+      addProviderTiles(providers$CartoDB.Positron) %>%
+      setView(lat = 52.35, lng = -1.25, zoom=5.7) %>%
+      addPolygons(
+        color = "#444444", weight = 1, smoothFactor = 0.5,
+        opacity = 1.0,
+        group = "Eco",
+        fillColor = ~pal(bi_class),
+        fillOpacity = 1, label=mytext
+      )
+  })
+
+  output$z1_map_bi <- renderLeaflet({
+    z1 <- zoom1() %>%
+      sp::merge(LSOA_eco_vars, by.x="AreaCodes", by.y="LSOA") %>%
+      sf::st_as_sf() %>%
+      sf::st_transform(crs="+init=epsg:4326")
+
+    eco_depriv <- biscale::bi_class(z1, x=pc_hosp, y=depriv)
+    eco_dens <- biscale::bi_class(z1, x=pc_hosp, y=dens)
+    eco_eth <- biscale::bi_class(z1, x=pc_hosp, y=Risk)
+    eco_black <- biscale::bi_class(z1, x=pc_hosp, y=Black)
+    eco_asian <- biscale::bi_class(z1, x=pc_hosp, y=Asian)
+    
+    pal_depriv <- colorFactor(
+      palette = bi_pal("DkBlue", dim=3, preview=F),
+      domain = factor(as.character(eco_depriv$bi_class), levels=names(bi_pal("DkBlue", dim=3, preview=F))))
+    pal_dens <- colorFactor(
+      palette = bi_pal("Brown", dim=3, preview=F),
+      domain = factor(as.character(eco_dens$bi_class), levels=names(bi_pal("Brown", dim=3, preview=F))))
+    pal_eth <- colorFactor(
+      palette = bi_pal("DkCyan", dim=3, preview=F),
+      domain = factor(as.character(eco_eth$bi_class), levels=names(bi_pal("DkCyan", dim=3, preview=F))))
+    pal_black <- colorFactor(
+      palette = bi_pal("GrPink", dim=3, preview=F),
+      domain = factor(as.character(eco_black$bi_class), levels=names(bi_pal("GrPink", dim=3, preview=F))))
+    pal_asian <- colorFactor(
+      palette = bi_pal("DkViolet", dim=3, preview=F),
+      domain = factor(as.character(eco_asian$bi_class), levels=names(bi_pal("DkBlue", dim=3, preview=F))))
+    
+    if (length(input$eco_var) == 0) {
+      shape_df <- eco_depriv
+      pal <- pal_depriv
+    } else if (input$eco_var == "Social deprivation") {
+      shape_df <- eco_depriv
+      pal <- pal_depriv
+    } else if (input$eco_var == "Population density") {
+      shape_df <- eco_dens
+      pal <- pal_dens
+    } else if (input$eco_var == "Proportion Black or Asian") {
+      shape_df <- eco_eth
+      pal <- pal_eth
+    } else if (input$eco_var == "Proportion Black") {
+      shape_df <- eco_black
+      pal <- pal_black
+    } else if (input$eco_var == "Proportion Asian") {
+      shape_df <- eco_asian
+      pal <- pal_asian
+    }
+    
+    loc <- as.data.frame(st_coordinates(z1[1]))
+    mytext <- paste(
+      "Name", ": <b>", z1$LSOA, 
+      "</b><br/>",
+      "Population", ": <b>", z1$pop, 
+      "</b><br/>",
+      "Hospitalizations per 1,000", ": <b>", round(z1$pc_hosp, 1),
+      sep="") %>%
+      lapply(htmltools::HTML)
+    
+    leaflet(shape_df %>%
+              sf::st_transform(crs="+init=epsg:4326")) %>%
+      addProviderTiles(providers$CartoDB.Positron) %>%
+      setView(lat = mean(loc$Y), lng = mean(loc$X), zoom=9) %>%
+      addPolygons(
+        color = "#444444", weight = 1, smoothFactor = 0.5,
+        opacity = 1.0,
+        group = "Eco",
+        fillColor = ~pal(bi_class),
+        fillOpacity = 1, label=mytext
+      )
+  })
+  
+  output$z2_map_bi <- renderLeaflet({
+    z2 <- zoom2() %>%
+      sp::merge(LSOA_eco_vars, by.x="AreaCodes", by.y="LSOA") %>%
+      sf::st_as_sf() %>%
+      sf::st_transform(crs="+init=epsg:4326")
+    
+    eco_depriv <- biscale::bi_class(z2, x=pc_hosp, y=depriv)
+    eco_dens <- biscale::bi_class(z2, x=pc_hosp, y=dens)
+    eco_eth <- biscale::bi_class(z2, x=pc_hosp, y=Risk)
+    eco_black <- biscale::bi_class(z2, x=pc_hosp, y=Black)
+    eco_asian <- biscale::bi_class(z2, x=pc_hosp, y=Asian)
+    
+    pal_depriv <- colorFactor(
+      palette = bi_pal("DkBlue", dim=3, preview=F),
+      domain = factor(as.character(eco_depriv$bi_class), levels=names(bi_pal("DkBlue", dim=3, preview=F))))
+    pal_dens <- colorFactor(
+      palette = bi_pal("Brown", dim=3, preview=F),
+      domain = factor(as.character(eco_dens$bi_class), levels=names(bi_pal("Brown", dim=3, preview=F))))
+    pal_eth <- colorFactor(
+      palette = bi_pal("DkCyan", dim=3, preview=F),
+      domain = factor(as.character(eco_eth$bi_class), levels=names(bi_pal("DkCyan", dim=3, preview=F))))
+    pal_black <- colorFactor(
+      palette = bi_pal("GrPink", dim=3, preview=F),
+      domain = factor(as.character(eco_black$bi_class), levels=names(bi_pal("GrPink", dim=3, preview=F))))
+    pal_asian <- colorFactor(
+      palette = bi_pal("DkViolet", dim=3, preview=F),
+      domain = factor(as.character(eco_asian$bi_class), levels=names(bi_pal("DkBlue", dim=3, preview=F))))
+    
+    if (length(input$eco_var) == 0) {
+      shape_df <- eco_depriv
+      pal <- pal_depriv
+    } else if (input$eco_var == "Social deprivation") {
+      shape_df <- eco_depriv
+      pal <- pal_depriv
+    } else if (input$eco_var == "Population density") {
+      shape_df <- eco_dens
+      pal <- pal_dens
+    } else if (input$eco_var == "Proportion Black or Asian") {
+      shape_df <- eco_eth
+      pal <- pal_eth
+    } else if (input$eco_var == "Proportion Black") {
+      shape_df <- eco_black
+      pal <- pal_black
+    } else if (input$eco_var == "Proportion Asian") {
+      shape_df <- eco_asian
+      pal <- pal_asian
+    }
+    
+    loc <- as.data.frame(st_coordinates(z2[1]))
+    mytext <- paste(
+      "Name", ": <b>", z2$LSOA, 
+      "</b><br/>",
+      "Population", ": <b>", z2$pop, 
+      "</b><br/>",
+      "Hospitalizations per 1,000", ": <b>", round(z2$pc_hosp, 1),
+      sep="") %>%
+      lapply(htmltools::HTML)
+    
+    leaflet(shape_df %>%
+              sf::st_transform(crs="+init=epsg:4326")) %>%
+      addProviderTiles(providers$CartoDB.Positron) %>%
+      setView(lat = mean(loc$Y), lng = mean(loc$X), zoom=9) %>%
+      addPolygons(
+        color = "#444444", weight = 1, smoothFactor = 0.5,
+        opacity = 1.0,
+        group = "Eco",
+        fillColor = ~pal(bi_class),
+        fillOpacity = 1, label=mytext
+      )
+  })
+  
+  output$bi_legend <- renderPlot({
+    if (length(input$eco_var) == 0) {
+      legend <- bi_legend(pal = "DkBlue", dim = 3, xlab = "Higher expected hospitalization",
+                          ylab = "Higher deprivation")
+    } else if (input$eco_var == "Social deprivation") {
+      legend <- bi_legend(pal = "DkBlue", dim = 3, xlab = "Higher expected hospitalization",
+                          ylab = "Higher deprivation")
+    } else if (input$eco_var == "Population density") {
+      legend <- bi_legend(pal = "Brown", dim = 3, xlab = "Higher expected hospitalization",
+                          ylab = "Higher population density")
+    } else if (input$eco_var == "Proportion Black or Asian") {
+      legend <- bi_legend(pal = "DkCyan", dim = 3, xlab = "Higher expected hospitalization",
+                          ylab = "Higher proportion Black or Asian")
+    } else if (input$eco_var == "Proportion Black") {
+      legend <- bi_legend(pal = "GrPink", dim = 3, xlab = "Higher expected hospitalization",
+                          ylab = "Higher proportion Black")
+    } else if (input$eco_var == "Proportion Asian") {
+      legend <- bi_legend(pal = "DkViolet", dim = 3, xlab = "Higher expected hospitalization",
+                          ylab = "Higher proportion Asian")
+    }
+    cowplot::ggdraw() +
+      cowplot::draw_plot(legend)
+    })
 }
 
 

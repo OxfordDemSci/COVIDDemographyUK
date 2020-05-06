@@ -69,7 +69,7 @@ app_get_rates <- function(path = "data/overall_rates.xlsx", custom, interpolate 
 }
 
 
-app_regional_agg <- function(agg_uk, uk, cw_lsoa_region, hospital_region) {
+app_regional_agg <- function(agg_uk, uk, cw_lda_region, hospital_region) {
   ### Generate regionally aggregated set with fatalities, general capacity, acute capacity and expected hospitalizations
   
   agg_uk_c <- merge.data.frame(agg_uk, uk, by.x = "AreaCodes", by.y="Area.Codes")
