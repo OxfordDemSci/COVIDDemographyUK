@@ -73,7 +73,6 @@ region_df <- region_df %>%
 London_specific <- uk_wide %>%
   filter(AreaCodes %in% c("E01033583", "E01002225"))
 London_specific[, 4:22] <- London_specific[, 4:22] / rowSums(London_specific[, 4:22])
-saveRDS(London_specific, "data/for graphs/london_highlight.rds")
 
 # Include demographics and rename variables for ArcGis
 uk_wide_cw <- uk_wide %>%
@@ -95,4 +94,4 @@ CCG_df_final <- CCG_df %>%
   mutate(CCG19NM = gsub(" CCG", "", CCG19NM))
 
 # Save data
-save(region_df, ccounty_df, lsoa_df_final, CCG_df_final, file = "data/agg_data.rda")
+save(region_df, ccounty_df, lsoa_df_final, CCG_df_final, London_specific, file = "data/agg_data.rda")
