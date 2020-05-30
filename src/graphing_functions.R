@@ -1,7 +1,7 @@
 
 read_region_hospital <- function() {
   ### Read information on hospital capacity on the regional level
-  acute <- read.csv("data/hospital beds/hospital_accute.csv") %>%
+  acute <- read.csv("data/hospital beds/hospital_acute.csv") %>%
     mutate(Region = gsub(" Comm.*", "", Region)) %>%
     mutate(Region = toupper(gsub(" And York.*| Of Eng.*", "", Region))) %>%
     dplyr::select(Region, Acute) %>%
