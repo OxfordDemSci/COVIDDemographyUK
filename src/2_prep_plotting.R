@@ -18,6 +18,7 @@ load("data/crosswalks.rda")  # crosswalks
 load("data/agg_data.rda")  # data on various aggregation levels
 load("data/shapefiles.rda")  # shapefiles
 
+
 ## --- Creating sf's --- ##
 # County SF
 agg_ccounty_shape <- sp::merge(ccounty_df, ccounty_shape, by.x="CCTY19NM", by.y="NAME", all.x=T) %>%
@@ -83,8 +84,7 @@ agg_ccg_b <- agg_ccg_s %>%
   ms_innerlines()
 
 # Wales (pre-loaded because LSOA)
-agg_lsoa_s_s5 <- agg_lsoa_wales
-
+agg_lsoa_s_s5 <- readRDS("data/LSOA_wales.rds")
 # London
 agg_lsoa_s_5 <- agg_lsoa_shape %>% 
   filter(
