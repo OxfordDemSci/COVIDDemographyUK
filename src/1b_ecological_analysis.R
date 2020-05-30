@@ -12,13 +12,14 @@ packages <- c("tidyverse", "tidycensus", "magrittr", "readxl", "sp", "gpclib", "
 lapply(packages, require, character.only = TRUE)
 
 ## load old data
-lsoa_df <- readRDS("data/for graphs/lsoa_data.rds")
-ccg_df <- readRDS("data/for graphs/ccg_data.rds")
-CW_lsoa_ccg <- read.csv("data/geo_crosswalks/CW_LSOA_CCG_UK.csv") %>%
+load("data/agg_data.rda")
+load("data/crosswalks.rda")
+
+CW_lsoa_ccg <- cw_lsoa_CCG %>%
   dplyr::select(LSOA11CD, CCG19NM) %>%
   rename(LSOA = LSOA11CD,
          NAME = CCG19NM)
-CW_lsoa_cc <- read.csv("data/geo_crosswalks/CW_LSOA_CCounty.csv") %>%
+CW_lsoa_cc <- cw_lsoa_ccounty %>%
   dplyr::select(LSOA11CD, NAME) %>%
   rename(LSOA = LSOA11CD) %>%
   mutate(NAME = toupper(NAME)) %>%
