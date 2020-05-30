@@ -38,7 +38,7 @@ create_map_stats <- function(df) {
 read_county_hospital <- function(path="data/hospital beds/all_hospitals_county.csv") {
   ### Read information on hospital capacity on the county level
   hospital_county <- read.csv(path) %>%
-    left_join(read.csv("data/hospital beds/hospital_accute.csv") %>%
+    left_join(read.csv("data/hospital beds/hospital_acute.csv") %>%
                 dplyr::select(Org, Acute)) %>%
            mutate(X.1 = as.numeric(gsub("\\,", "", X.1)),
                   X.1 = ifelse(is.na(X.1), 0, X.1),
@@ -151,7 +151,7 @@ weight_capacity <- function(df, dup) {
 
 read_wales_hospital <- function(ccounty_shape) {
   # Need to merge two of the polygons to one in the ceremonial counties list
-  wales <- readRDS("data/wales_bed_data/nhs_wales_beds_cleaned.rds") %>%
+  wales <- readRDS("data/hospital beds/nhs_wales_beds_cleaned.rds") %>%
     dplyr::select(name, beds, intensive_care_beds)
   wales <- st_join(wales, ccounty_shape, largest = TRUE) %>%
     dplyr::select(NAME, beds, intensive_care_beds)
