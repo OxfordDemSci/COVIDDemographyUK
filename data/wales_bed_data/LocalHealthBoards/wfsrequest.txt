@@ -1,1 +1,0 @@
-http://lle.gov.wales/services/wfs?version=2.0.0&request=GetFeature&typeName=inspire-wg:local_health_boards&outputFormat=SHAPE-ZIP
