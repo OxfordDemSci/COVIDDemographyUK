@@ -15,6 +15,9 @@ lapply(packages, require, character.only = TRUE)
 load("data/agg_data.rda")
 load("data/crosswalks.rda")
 
+lsoa_df <- lsoa_df_final
+ccg_df <- CCG_df_final
+
 CW_lsoa_ccg <- cw_lsoa_CCG %>%
   dplyr::select(LSOA11CD, CCG19NM) %>%
   rename(LSOA = LSOA11CD,
@@ -174,8 +177,8 @@ CC_eco_vars <- cc_depriv %>%
 save(LSOA_eco_vars,
      CCG_eco_vars,
      CC_eco_vars,
-     file = "data/for graphs/eco_vars.rda")
-save(LSOA_eco_vars,
-     CCG_eco_vars,
-     CC_eco_vars,
-     file = "app/data/eco_vars.rda")
+     file = "data/eco_vars.rda")
+# save(LSOA_eco_vars,
+#      CCG_eco_vars,
+#      CC_eco_vars,
+#      file = "app/data/eco_vars.rda")
