@@ -6,7 +6,7 @@
 # Load packages
 packages <- c("tidyverse", "tidycensus", "magrittr", "readxl", "sp", "gpclib", "maptools", "spdep", "raster", "rgdal",
               "maptools", "RColorBrewer", "lattice", "gridExtra", "sf", "reshape2", "spData", "rgeos",
-              "maps", "rmapshaper")
+              "maps", "rmapshaper", "biscale")
 lapply(packages, require, character.only = TRUE)
 setwd("/Users/markverhagen/Dropbox/Academic Work/Cooperative work/COVIDDemographyUK/")
 library(tidyverse)
@@ -17,7 +17,11 @@ library(osmdata)
 
 ## --- Functions --- ##
 source("src/graphing_functions.R")
+
 ## --- Reading Data --- ##
+
+# eco variables constructed in ecological_indices.R
+load("data/for graphs/eco_vars.rda")
 
 # read crosswalks
 cw_lda_region <- read.csv("data/geo_crosswalks/CW_LDA_Region.csv")  # this crosswalk is LDA to Region (we have both LSOA and LDA in the raw data)
@@ -42,13 +46,7 @@ lsoa_shape <- sf::st_read("shapefiles/UK/LSOA/Lower_Layer_Super_Output_Areas_Dec
   merge.data.frame(cw_lsoa_ccounty[, c("LSOA11CD", "NAME")], by="LSOA11CD") 
 ccg_shape <- sf::st_read("shapefiles/UK/CCG/Clinical_Commissioning_Groups_April_2019_Boundaries_EN_BFC.shp")
 
-# # here go IK local paths to the heavy shapes
-# lsoa_shape <- sf::st_read("~/Downloads/uk-shp/LSOA_shape/Lower_Layer_Super_Output_Areas_December_2011_Boundaries_EW_BFC.shp") %>%
-#   merge.data.frame(cw_lsoa_ccounty[, c("LSOA11CD", "NAME")], by="LSOA11CD")
-# ccg_shape <- sf::st_read("~/Downloads/uk-shp/Clinical_Commissioning_Groups_April_2019_Boundaries_EN_BFC/Clinical_Commissioning_Groups_April_2019_Boundaries_EN_BFC.shp")
-
 ## --- Creating sf's --- ##
-
 # County SF
 agg_ccounty_shape <- sp::merge(ccounty_df, ccounty_shape, by.x="CCTY19NM", by.y="NAME", all.x=T) %>%
   create_map_stats()
@@ -89,40 +87,8 @@ agg_lsoa_shape <- sp::merge(lsoa_df_dem, lsoa_shape, by.x="AreaCodes", by.y="LSO
 # which was therefore done in arqgis
 saveRDS(agg_lsoa_shape, "data/final/LSOA_complex_alldata.rds")
 
-## -- London
-agg_lsoa_msoa <-  agg_lsoa_shape %>%
-  rename(LSOA11CD = AreaCodes) %>%
-  left_join(cw_msoa, by="LSOA11CD") %>%
-  left_join(sd, by.x="AreaCodes", by.y="LSOA11CD") %>%
-  filter(RGN11NM == "London") %>%
-  group_by(MSOA11CD) %>%
-  summarise(depriv = weighted.mean(Index.of.Multiple.Deprivation..IMD..Decile, value),
-            value = sum(value),
-            hospitalization = sum(hospitalization))
-
-agg_lsoa_msoa_deaths <- agg_lsoa_msoa %>%
-  left_join(msoa_deaths) %>%
-  mutate(pc_hosp = hospitalization / value,
-         pc_actual = `COVID-19` / value,
-         pc_all = `All causes` / value)
-
-## -- Manchester
-agg_lsoa_msoa_man <-  agg_lsoa_shape %>%
-  rename(LSOA11CD = AreaCodes) %>%
-  left_join(cw_lsoa_ccounty) %>%
-  left_join(sd) %>%
-  filter(NAME == "Greater Manchester") %>%
-  filter(grepl("Salford|Trafford", LSOA)) %>%
-  left_join(cw_msoa %>% dplyr::select(-FID)) %>%
-  group_by(MSOA11CD) %>%
-  summarise(depriv = weighted.mean(Index.of.Multiple.Deprivation..IMD..Decile, value),
-            value = sum(value),
-            hospitalization = sum(hospitalization))
-
 # CCG SF
 agg_ccg_shape <- sp::merge(CCG_df_dem, ccg_shape, by = "CCG19CD") %>% create_map_stats()
-
-
 
 agg_region_s <- agg_region_shape %>% 
   ms_simplify(keep = .01)
@@ -209,6 +175,48 @@ wales_h <- read.csv("data/wales_bed_data/nhs_wales_facilities_geocoded_cleaned.c
   ) %>% 
   ms_clip(wales_df %>% ms_dissolve())
 
+
+## Create ecological datasets ##
+# ecological data
+legend_depriv <- bi_legend(pal = "DkBlue",
+                           dim = 3,
+                           xlab = "Higher expected\nhospitalization",
+                           ylab = "Higher deprivation",
+                           size = 10)
+
+legend_eth <- bi_legend(pal = "DkCyan",
+                        dim = 3,
+                        xlab = "Higher expected\nhospitalization",
+                        ylab = "Higher % ethnic",
+                        size = 10)
+
+legend_dens <- bi_legend(pal = "DkViolet",
+                         dim = 3,
+                         xlab = "Higher expected\nhospitalization",
+                         ylab = "Higher population\ndensity",
+                         size = 10)
+
+LSOA_eco_vars <- LSOA_eco_vars %>%
+  rename(AreaCodes = LSOA)
+b_londen <- agg_lsoa_s_5 %>%
+  left_join(LSOA_eco_vars)
+b_londen_depriv <- biscale::bi_class(b_londen, x=pc_hosp, y=depriv)
+b_londen_eth <- biscale::bi_class(b_londen, x=pc_hosp, y=Risk)
+
+CCG_eco_vars <- CCG_eco_vars %>%
+  rename(CCG19NM = NAME)
+agg_ccg_s$CCG19NM.x <- NULL
+agg_ccg_s$CCG19NM <- agg_ccg_s$CCG19NM.y
+agg_ccg_s_eco <- agg_ccg_s %>%
+  left_join(CCG_eco_vars, by="CCG19NM")
+
+ccg_depriv_df <- biscale::bi_class(agg_ccg_s_eco, x=pc_hosp, y=depriv)
+ccg_dens_df <- biscale::bi_class(agg_ccg_s_eco, x=pc_hosp, y=dens)
+
+save(file = "data/for graphs/final_eco.rda",
+     legend_dens, legend_depriv, legend_eth,
+     LSOA_eco_vars, b_londen, b_londen_depriv, b_londen_eth,
+     CCG_eco_vars, agg_ccg_s_eco, ccg_depriv_df, ccg_dens_df)
 
 # save and load back -- for furute return
 save(
