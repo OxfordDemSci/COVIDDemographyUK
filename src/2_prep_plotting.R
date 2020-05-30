@@ -13,7 +13,7 @@ source("src/graphing_functions.R")
 
 ## --- Reading Data --- ##
 
-load("data/for graphs/eco_vars.rda")  # population level variables
+load("data/eco_vars.rda")  # population level variables
 load("data/crosswalks.rda")  # crosswalks
 load("data/agg_data.rda")  # data on various aggregation levels
 load("data/shapefiles.rda")  # shapefiles
@@ -83,7 +83,7 @@ agg_ccg_b <- agg_ccg_s %>%
   ms_innerlines()
 
 # Wales (pre-loaded because LSOA)
-agg_lsoa_s_s5 <- readRDS("data/final/LSOA_Wales.rds")
+agg_lsoa_s_s5 <- agg_lsoa_wales
 
 # London
 agg_lsoa_s_5 <- agg_lsoa_shape %>% 
@@ -162,7 +162,7 @@ agg_ccg_s_eco <- agg_ccg_s %>%
 ccg_depriv_df <- biscale::bi_class(agg_ccg_s_eco, x=pc_hosp, y=depriv)
 ccg_dens_df <- biscale::bi_class(agg_ccg_s_eco, x=pc_hosp, y=dens)
 
-save(file = "data/for graphs/final_eco.rda",
+save(file = "data/inal_eco.rda",
      legend_dens, legend_depriv, legend_eth,
      LSOA_eco_vars, b_londen, b_londen_depriv, b_londen_eth,
      CCG_eco_vars, agg_ccg_s_eco, ccg_depriv_df, ccg_dens_df)
@@ -183,18 +183,18 @@ save(
   agg_lsoa_s_5,
   cities,
   agg_lsoa_5_b,
-  file = "data/for graphs/ready.rda"
+  file = "data/ready.rda"
 )
 
 # save for app
-save(
-  agg_region_s,
-  agg_region_b,
-  agg_ccounty_s,
-  agg_ccounty_b,
-  agg_ccg_s,
-  agg_ccg_b,
-  wales_h,
-  cities,
-  file = "app/data/graphing.rda"
-)
+# save(
+#   agg_region_s,
+#   agg_region_b,
+#   agg_ccounty_s,
+#   agg_ccounty_b,
+#   agg_ccg_s,
+#   agg_ccg_b,
+#   wales_h,
+#   cities,
+#   file = "app/data/graphing.rda"
+# )

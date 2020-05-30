@@ -21,6 +21,7 @@ font_add_google("Roboto Condensed", "Roboto Condensed")
 font_add_google("Roboto Slab", "Roboto Slab")
 showtext::showtext_auto()
 
+dir.create("figs_final")
 # define own theme
 own_theme <- cowplot::theme_map(font_size = 14, font_family = font_rc)+
   ggplot2::theme(
@@ -40,7 +41,6 @@ own_plot_grid <- function(a, b, ...) {
     plot_layout(ncol = 2)+
     plot_annotation(
       tag_levels = "A",
-      caption = caption,
       theme = theme(
         plot.title = element_blank(),
         plot.caption = element_text(family = font_rc, size = 12)
@@ -51,9 +51,8 @@ own_plot_grid <- function(a, b, ...) {
 
 # load the prepared data
 
-load("data/for graphs/ready.rda")
-load("data/for graphs/labs.rda")
-load("data/for graphs/final_eco.rda")
+load("data/ready.rda")
+load("data/final_eco.rda")
 
 # Fig 1 ------------------------------------------------------------
 
@@ -288,8 +287,7 @@ agg_lsoa_s_5 %>%
     palette = 'PuBuGn', direction = 1
   ) + 
   own_theme +
-  theme(legend.position = c(.05, .15))+
-  labs(title = plot_title_05 %>% str_wrap(70))
+  theme(legend.position = c(.05, .15))
 
 london_pc_hosp <- last_plot()
 
@@ -350,7 +348,6 @@ a <- (ccg_depriv_f + ccg_dens_f) +
   plot_layout(ncol = 2)+
   plot_annotation(
     tag_levels = "A",
-    caption = caption,
     theme = theme(
       plot.title = element_text(family = "Roboto Slab", size = 20, face = 2),
       plot.caption = element_text(family = font_rc, size = 12)
@@ -374,8 +371,7 @@ b_londen_depriv %>%
   # geom_sf(data = agg_lsoa_5_b, size = .15, color = "#CAC9C9")+
   scale_color_manual(NULL, values = pal, guide = NULL)+
   biscale::bi_scale_fill(pal = "DkBlue", dim=3) + 
-  bi_theme +
-  labs(title = "London Local Differences in Age-based Hospitalization Combined with Social Deprivation" %>% str_wrap(60))
+  bi_theme
 
 london_depriv <- last_plot()
 
@@ -400,8 +396,7 @@ b_londen_eth %>%
   # geom_sf(data = agg_lsoa_5_b, size = .15, color = "#CAC9C9")+
   scale_color_manual(NULL, values = pal, guide = NULL)+
   biscale::bi_scale_fill(pal = "DkCyan", dim=3) + 
-  bi_theme +
-  labs(title = "London Local Differences in Age-based Hospitalization Combined with Ethnic Risk Groups (Asian and Black)" %>% str_wrap(60))
+  bi_theme
 
 london_eth <- last_plot()
 
@@ -466,8 +461,7 @@ b_man_depriv %>%
   # geom_sf(data = agg_lsoa_5_b, size = .15, color = "#CAC9C9")+
   scale_color_manual(NULL, values = pal, guide = NULL)+
   biscale::bi_scale_fill(pal = "DkBlue", dim=3) + 
-  bi_theme +
-  labs(title = "Manchester Local Differences in Age-based Hospitalization Combined with Social Deprivation" %>% str_wrap(70))
+  bi_theme
 
 man_depriv <- last_plot()
 
@@ -735,8 +729,7 @@ wales_pc_hosp_acute <- last_plot()
 
 fig_s05 <- own_plot_grid(
   wales_pc_hosp, 
-  wales_pc_hosp_acute,
-  plot_title_s05
+  wales_pc_hosp_acute
 )
 
 ggsave(filename = "figs_final/fig-s05.png", 
