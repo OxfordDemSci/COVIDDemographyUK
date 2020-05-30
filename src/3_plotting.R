@@ -229,7 +229,7 @@ ggsave(filename = "figs_final//fig-03.svg",
 # generate custom palette
 pal <- RColorBrewer::brewer.pal(11, "BrBG")[c(11,3)]
 # load highlight data
-london_highlight_df <- readRDS("data/for graphs/london_highlight.rds")
+london_highlight_df <- readRDS("data/london_highlight.rds")
 
 # hack to fix geom_step aligning 
 repeat_last_obs <- function(df) bind_rows(df, df %>% filter(age == "90+") %>% mutate(age = NULL))
@@ -412,7 +412,7 @@ ggsave(filename = "figs_final/fig-07.png",
 # Fig 8--------------------------------------------------------------
 # Zoom-in on Manchester - social deprivation and hospitalization risk
 
-man_highlight_df <- readRDS("data/for graphs/man_highlight.rds")
+man_highlight_df <- readRDS("data/man_highlight.rds")
 
 man_highlight_df %>% 
   mutate(name = LSOA) %>% 
