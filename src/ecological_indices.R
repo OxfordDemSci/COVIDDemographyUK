@@ -1,4 +1,5 @@
 rm(list = ls()) # https://www.tidyverse.org/blog/2017/12/workflow-vs-script/
+
 ## Script for Covid-19 geographical risk analysis, final data
 ## Author: Mark Verhagen (LCDS)
 ## Created: 30-04-2020
@@ -23,7 +24,6 @@ CW_lsoa_cc <- read.csv("data/geo_crosswalks/CW_LSOA_CCounty.csv") %>%
   mutate(NAME = toupper(NAME)) %>%
   mutate(NAME = gsub("\\&", "AND", NAME),
          NAME = gsub("CITY AND COUNTY OF THE CITY OF LONDON", "GREATER LONDON", NAME))
-# CW_lsoa_ccg <- rbind(CW_lsoa_cc, CW_lsoa_ccg)
 
 ## -- LSOA level -- ##
 
