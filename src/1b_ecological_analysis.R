@@ -1,9 +1,6 @@
-rm(list = ls()) # https://www.tidyverse.org/blog/2017/12/workflow-vs-script/
-
 ## Script for Covid-19 geographical risk analysis, final data
 ## Author: Mark Verhagen (LCDS)
 ## Created: 30-04-2020
-## Code Review:
 
 ## Load packages
 packages <- c("tidyverse", "tidycensus", "magrittr", "readxl", "sp", "gpclib", "maptools", "spdep", "raster", "rgdal",
